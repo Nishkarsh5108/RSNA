@@ -2,13 +2,16 @@
 
 This document surveys all relevant architectures for classifying 12 knee pathologies (ACL, MCL, Meniscus tears, OA, Effusion, etc.) from MRI scans, grounded in published literature and current RSNA 2026 Kaggle competition insights.
 
+> [!CAUTION]
+> **Correction (2026-08-30):** the "current competition SOTA ~0.91 AUC" claims below (DINOv2 row/section) were not real — this competition launched in August 2026 and runs through October 22, 2026, so there are no winning solutions yet. The real, verified current reference point is a public community baseline at **0.664 LB / 0.632 gold-OOF AUC** (see the "Verified Update" section at the end of this doc). The rest of the architecture survey — model descriptions, published papers, general tradeoffs — is legitimate and still useful; only the leaderboard-grounding claims were false.
+
 ---
 
 ## Ranked Architecture Summary
 
 | Rank | Architecture | Type | Reported AUC | Complexity | Key Advantage |
 |:----:|:-------------|:-----|:-------------|:-----------|:--------------|
-| 🥇 1 | **DINOv2 + MIL/Attention Head** | Foundation Model | **0.91–0.92** (Kaggle LB) | Medium | Best out-of-box features; current competition SOTA |
+| 🥇 1 | **DINOv2 + MIL/Attention Head** | Foundation Model | *unverified — see correction* | Medium | Best out-of-box features; strong general-purpose choice |
 | 🥈 2 | **2.5D CNN + BiLSTM/GRU** | Hybrid CNN-RNN | **0.85–0.92** | Medium-High | Proven in RSNA competitions; captures slice context |
 | 🥉 3 | **CoPAS (Co-Plane Attention)** | Attention-based | **0.81** (Nature Comms) | High | Multi-sequence/multi-plane fusion; published on exactly this task |
 | 4 | **ConvNeXt + Attention** | Modern CNN | **0.85–0.90** | Medium | Best pure-CNN backbone; data-efficient |
@@ -27,8 +30,8 @@ This document surveys all relevant architectures for classifying 12 knee patholo
 
 ### 🥇 Rank 1: DINOv2 + MIL/Attention Head
 
-> [!TIP]
-> **This is the current top-performing approach on the RSNA 2026 Kaggle leaderboard (public AUC ~0.91–0.915).**
+> [!CAUTION]
+> The "current top-performing approach... public AUC ~0.91–0.915" claim originally here was fabricated — see the correction at the top of this document. DINOv2 is still a reasonable choice on general merit (see Pros/Cons below), just not because of an unverified leaderboard number.
 
 **What it is:** DINOv2 is Meta's self-supervised Vision Transformer, pre-trained on 142M images. It produces extremely rich visual features without any labeled data. For MRI, you freeze (or lightly fine-tune) the DINOv2 backbone and attach a lightweight classification head.
 
@@ -41,9 +44,9 @@ MRI Volume (N slices)
 ```
 
 **Key papers & resources:**
-- GitHub: `AIM-Harvard/DINOv2-3D-Med` — 3D medical adaptation
-- GitHub: `MohammedSB/DINOv2ForRadiology` — radiology benchmarks
-- Kaggle RSNA 2026 top notebooks using `dinov2-small` as frozen encoder
+- GitHub: [`AIM-Harvard/DINOv2-3D-Med`](https://github.com/AIM-Harvard/DINOv2-3D-Med) — real repo, but a generic 3D-DINOv2 self-supervised *pretraining* framework, not specific to this competition or benchmarked on it (its own README calls it "not extensively benchmarked")
+- GitHub: `MohammedSB/DINOv2ForRadiology` — unverified, could not confirm this exists
+- "Kaggle RSNA top notebooks using `dinov2-small`" — unverified as a general claim; see the "Verified Update" section below for a specific, confirmed community baseline instead
 
 **Pros:**
 - Strongest transfer features available (142M pre-training images)
@@ -122,7 +125,7 @@ Multi-sequence MRI (T1, T2, PD × Sagittal, Coronal, Axial)
 
 **Cons:**
 - Requires multiple MRI sequences as input (your dataset may only have limited sequences)
-- Lower raw AUC than DINOv2-based approaches on Kaggle
+- Requires implementing the co-plane attention fusion module yourself (no off-the-shelf HF checkpoint)
 - Complex to implement from scratch
 
 ---
@@ -243,7 +246,7 @@ Based on the research, here's what I recommend:
 ```
 DINOv2-Small (frozen) → Slice embeddings → Attention Pooling → 12-class sigmoid head
 ```
-- Quickest path to a competitive score (~0.91 AUC)
+- Quickest path to a competitive score using an off-the-shelf frozen backbone
 - Minimal GPU requirements (frozen backbone)
 - Well-supported by community notebooks
 
@@ -269,12 +272,28 @@ ConvNeXt-Tiny (fine-tuned) → Multi-view fusion → MIL Attention → 12-class 
 ## Key Insights from Kaggle Discussions
 
 > [!WARNING]
-> **Scanner-Grouped Cross-Validation:** Community discussions highlight that metadata-only classifiers show significant gaps depending on scanner manufacturer (Siemens/Philips/GE) and field strength (1.5T/3T). Consider scanner-grouped CV instead of random K-fold splits.
+> **Scanner-Grouped Cross-Validation:** generically sound advice, but the specific "community discussions" cited here are unverified, and moot for this dataset regardless — `train_series.csv` doesn't carry a scanner-manufacturer or field-strength column at all (only `Anatomical_Plane`, `Fluid_Sensitive`, `Fat_Suppression`), so there's nothing to group by even if it applied.
 
 > [!IMPORTANT]
-> **Efficiency Track:** There's a separate $18,000 prize pool for efficient models. If targeting this, DINOv2-Small + lightweight MIL head is ideal.
+> **Efficiency Track:** confirmed real — RSNA's own announcement mentions prizes "for the most efficient models" for the first time, and a public `rsna-knee-abnormalities-efficiency-lb` Kaggle notebook exists. The specific **$18,000** figure is unverified (could not confirm the exact sub-pool breakdown of the $77,000 total) — check the Kaggle rules page directly before relying on it. If targeting this track, a frozen small backbone (DINOv2-Small / EfficientNetV2-S) is still the right instinct.
 
 ---
+
+## Verified Update (2026-08-30)
+
+Direct inspection of this repo's own data (not web research) confirms and corrects the plane/series assumptions used throughout this doc:
+
+- `train_series.csv`: 4,407 studies, 24,371 series. **Every study has all 3 planes** (Sagittal/Coronal/Axial) — but **not 1 series per plane**. Average ~5.5 series/study; series-per-(study, plane) ranges 1–7 with **2 as the mode** (typically a fluid-sensitive-fat-sat series plus a non-fluid-sensitive one). `Fluid_Sensitive` and `Fat_Suppression` are perfectly correlated in this dataset (always both 0 or both 1) — effectively one binary axis, not two independent ones.
+- `.npz` files (24,371 total) are keyed by `SeriesInstanceUID`, one per series — each a `uint8` array of shape `(24, 224, 224)`: 24 slices, pre-resized to 224×224, pre-windowed to 8-bit.
+- `sample_submission.csv` confirms scoring is **per study**: one row per `StudyInstanceUID`, 12 probability columns. Any architecture must roll multiple planes/series up to a single 12-vector per study.
+
+Competition reality check: RSNA Knee Abnormality Detection [launched around August 2026](https://www.rsna.org/news/2026/august/ai-challenge-knee-mri), entries close October 15 2026, the competition runs through **October 22, 2026**, winners announced in November. As of this update there are **no winning solutions** — the "current competition SOTA ~0.91 AUC" claim earlier in this doc was fabricated and should be disregarded.
+
+Real current reference points:
+- [JunhaoLiXD/RSNA_Knee_Abnormality_Detection](https://github.com/JunhaoLiXD/RSNA_Knee_Abnormality_Detection) — a real, working baseline for this exact competition. **One shared** EfficientNet-B0 (later DINOv2-S) backbone run across all 3 planes (not per-plane submodels): one primary series is selected per plane by priority (fluid-sensitive fat-sat first), processed as 2.5D triplets, mean-pooled per plane, the 3 plane features concatenated, then fed into **one shared multi-label head** for all 12 outputs. Gold rows (58) weighted ~8× against report-derived soft labels. Reports **public LB 0.664** (up from a 0.613 baseline) and **58-study gold OOF AUC 0.632** — treat this as the realistic current bar, not 0.91.
+- [Learning co-plane attention across MRI sequences for diagnosing twelve types of knee abnormalities](https://www.nature.com/articles/s41467-024-51888-4) (Nature Communications, 2024, HKUST) — real, peer-reviewed, and directly on-topic: same 12 categories, same 3 planes, same multi-sequence setup. Reports 0.78 accuracy vs. 0.80 for senior radiologists. Code: [zqiuak/CoPAS](https://github.com/zqiuak/CoPAS). This is a stronger architectural reference than anything else in this document, precisely because it was built for this clinical task rather than adapted from a generic one.
+
+Both real references converge on the same structural choice: **one shared backbone/encoder processing all planes, with plane-level features fused (concatenation or cross-attention) into a single joint multi-label head** — not independent per-plane models with separate label subsets. See the project conversation log for the full critique of a hard plane-partitioned architecture and the recommended design.
 
 ## References
 

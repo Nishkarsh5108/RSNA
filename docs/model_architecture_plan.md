@@ -209,15 +209,8 @@ Training script for Kaggle:
 
 ## Open Questions
 
-> [!IMPORTANT]
-> **NPZ File Format**: I can see the `.npz` files are named by `SeriesInstanceUID`. Before I start coding, could you quickly load one of these files on your machine and tell me what arrays/keys are inside? For example:
-> ```python
-> import numpy as np
-> data = np.load(r"D:\Coding\kaggle\RSNA\data\<any_npz_filename>.npz")
-> print(data.files)  # What keys are stored?
-> print(data[data.files[0]].shape)  # What's the shape?
-> ```
-> This will determine how I structure the data loader.
+> [!NOTE]
+> **NPZ File Format (resolved 2026-08-30)**: confirmed by direct inspection. Each `.npz` holds one key, `data` — a `uint8` array of shape `(24, 224, 224)`: 24 slices, pre-resized to 224×224, already 8-bit windowed/normalized. Filenames are keyed by `SeriesInstanceUID` (one file per series, not per study) — 24,371 files for 24,371 series across 4,407 studies. Series-per-study ranges 3–14 (mode 5); series-per-(study, plane) ranges 1–7 (mode 2) — "one series per plane" is not a safe assumption, so the data loader needs to pool over a variable number of series within each plane.
 
 > [!IMPORTANT]
 > **Kaggle vs Local**: Since you'll be training on Kaggle, I'll write the code with configurable paths (local for debugging, Kaggle for training). The `.npz` data — is it also available on Kaggle as a dataset, or will you upload it?
