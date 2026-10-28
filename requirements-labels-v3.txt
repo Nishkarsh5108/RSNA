@@ -1,0 +1,22 @@
+# Environment used for the labels_v3 audit / label pipeline (conda env "torch_gpu", Python 3.11.14).
+# torch with CUDA 11.8 wheels: pip install torch==2.7.1 --index-url https://download.pytorch.org/whl/cu118
+torch==2.7.1
+transformers==5.5.4
+accelerate==1.13.0
+bitsandbytes==0.50.1
+huggingface_hub==1.11.0
+pydicom==3.0.2
+numpy==2.4.4
+pandas==2.3.3
+scipy==1.16.3
+scikit-learn==1.8.0
+lingua-language-detector==2.1.1
+opencv-python==4.13.0.90
+matplotlib==3.10.7
+pyarrow==22.0.0
+# DICOM decoders for JPEG-Lossless / JPEG-2000 (hidden test set). Installed 2026-10-17 for
+# src/audit/decode_selftest.py; MUST be attached as offline wheels in the Kaggle submission notebook.
+pylibjpeg==2.1.0
+pylibjpeg-libjpeg==2.4.0
+pylibjpeg-openjpeg==2.6.0
+python-gdcm==3.2.6

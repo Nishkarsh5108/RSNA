@@ -1,0 +1,91 @@
+{
+  "studies": 4349,
+  "weights": {
+    "r6_oof": 0.5,
+    "s6_oof": 0.25,
+    "s6ft_v2": 0.25
+  },
+  "blend_ratio": "75% vision + 25% report (with 100% vision override on omitted negatives)",
+  "omission_corrections_pvis_gt_0.4": {
+    "ACL": 159,
+    "Medial Meniscus": 182,
+    "Lateral Meniscus": 132,
+    "Synovitis": 240,
+    "Contusion": 174,
+    "Fracture": 135
+  },
+  "per_finding_means": {
+    "ACL": {
+      "report_mean": 0.2255,
+      "vis_super_mean": 0.2255,
+      "target_mean": 0.2361,
+      "corr_vis_rep": 0.8083
+    },
+    "MCL": {
+      "report_mean": 0.1569,
+      "vis_super_mean": 0.1569,
+      "target_mean": 0.1569,
+      "corr_vis_rep": 0.6427
+    },
+    "Medial Meniscus": {
+      "report_mean": 0.4384,
+      "vis_super_mean": 0.4384,
+      "target_mean": 0.4487,
+      "corr_vis_rep": 0.8449
+    },
+    "Lateral Meniscus": {
+      "report_mean": 0.1971,
+      "vis_super_mean": 0.1971,
+      "target_mean": 0.2062,
+      "corr_vis_rep": 0.7876
+    },
+    "Medial OA": {
+      "report_mean": 0.3524,
+      "vis_super_mean": 0.3524,
+      "target_mean": 0.3524,
+      "corr_vis_rep": 0.8006
+    },
+    "Lateral OA": {
+      "report_mean": 0.2516,
+      "vis_super_mean": 0.2516,
+      "target_mean": 0.2516,
+      "corr_vis_rep": 0.7049
+    },
+    "PF OA": {
+      "report_mean": 0.4118,
+      "vis_super_mean": 0.4118,
+      "target_mean": 0.4118,
+      "corr_vis_rep": 0.7476
+    },
+    "Effusion": {
+      "report_mean": 0.518,
+      "vis_super_mean": 0.518,
+      "target_mean": 0.518,
+      "corr_vis_rep": 0.7079
+    },
+    "Synovitis": {
+      "report_mean": 0.2635,
+      "vis_super_mean": 0.2635,
+      "target_mean": 0.2734,
+      "corr_vis_rep": 0.6503
+    },
+    "Baker's": {
+      "report_mean": 0.2784,
+      "vis_super_mean": 0.2784,
+      "target_mean": 0.2784,
+      "corr_vis_rep": 0.8089
+    },
+    "Contusion": {
+      "report_mean": 0.235,
+      "vis_super_mean": 0.235,
+      "target_mean": 0.2458,
+      "corr_vis_rep": 0.7883
+    },
+    "Fracture": {
+      "report_mean": 0.1401,
+      "vis_super_mean": 0.1401,
+      "target_mean": 0.148,
+      "corr_vis_rep": 0.6491
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+ "pool": 4349,
+ "both_report_sources": 4349,
+ "per_finding": {
+  "ACL": {
+   "platt_a_b": [
+    0.8049,
+    -0.0537
+   ],
+   "cells_changed": 645,
+   "mean_report": 0.2255,
+   "mean_vis_cal": 0.2255,
+   "mean_target": 0.2214,
+   "mean_abs_change": 0.0119,
+   "corr_v3_jev": 0.9809
+  },
+  "MCL": {
+   "platt_a_b": [
+    0.7842,
+    -0.2961
+   ],
+   "cells_changed": 0,
+   "mean_report": 0.1569,
+   "mean_vis_cal": 0.1569,
+   "mean_target": 0.1569,
+   "mean_abs_change": 0.0,
+   "corr_v3_jev": 0.9719
+  },
+  "Medial Meniscus": {
+   "platt_a_b": [
+    0.8893,
+    -0.0255
+   ],
+   "cells_changed": 0,
+   "mean_report": 0.4384,
+   "mean_vis_cal": 0.4384,
+   "mean_target": 0.4384,
+   "mean_abs_change": 0.0,
+   "corr_v3_jev": 0.9859
+  },
+  "Lateral Meniscus": {
+   "platt_a_b": [
+    0.9174,
+    0.0662
+   ],
+   "cells_changed": 929,
+   "mean_report": 0.1971,
+   "mean_vis_cal": 0.1971,
+   "mean_target": 0.1964,
+   "mean_abs_change": 0.0178,
+   "corr_v3_jev": 0.9845
+  },
+  "Medial OA": {
+   "platt_a_b": [
+    0.8378,
+    -0.2371
+   ],
+   "cells_changed": 1491,
+   "mean_report": 0.3524,
+   "mean_vis_cal": 0.3524,
+   "mean_target": 0.308,
+   "mean_abs_change": 0.0468,
+   "corr_v3_jev": 0.9779
+  },
+  "Lateral OA": {
+   "platt_a_b": [
+    0.8487,
+    -0.2056
+   ],
+   "cells_changed": 972,
+   "mean_report": 0.2516,
+   "mean_vis_cal": 0.2516,
+   "mean_target": 0.2105,
+   "mean_abs_change": 0.0418,
+   "corr_v3_jev": 0.9668
+  },
+  "PF OA": {
+   "platt_a_b": [
+    0.8186,
+    -0.2828
+   ],
+   "cells_changed": 1896,
+   "mean_report": 0.4118,
+   "mean_vis_cal": 0.4118,
+   "mean_target": 0.3522,
+   "mean_abs_change": 0.062,
+   "corr_v3_jev": 0.9758
+  },
+  "Effusion": {
+   "platt_a_b": [
+    0.7921,
+    0.0243
+   ],
+   "cells_changed": 0,
+   "mean_report": 0.518,
+   "mean_vis_cal": 0.518,
+   "mean_target": 0.518,
+   "mean_abs_change": 0.0,
+   "corr_v3_jev": 0.965
+  },
+  "Synovitis": {
+   "platt_a_b": [
+    0.8534,
+    0.0553
+   ],
+   "cells_changed": 3670,
+   "mean_report": 0.2635,
+   "mean_vis_cal": 0.2635,
+   "mean_target": 0.2954,
+   "mean_abs_change": 0.0495,
+   "corr_v3_jev": 0.9172
+  },
+  "Baker's": {
+   "platt_a_b": [
+    0.749,
+    -0.209
+   ],
+   "cells_changed": 1064,
+   "mean_report": 0.2784,
+   "mean_vis_cal": 0.2784,
+   "mean_target": 0.2464,
+   "mean_abs_change": 0.0333,
+   "corr_v3_jev": 0.976
+  },
+  "Contusion": {
+   "platt_a_b": [
+    0.9726,
+    0.1459
+   ],
+   "cells_changed": 1502,
+   "mean_report": 0.235,
+   "mean_vis_cal": 0.235,
+   "mean_target": 0.2405,
+   "mean_abs_change": 0.0247,
+   "corr_v3_jev": 0.9506
+  },
+  "Fracture": {
+   "platt_a_b": [
+    0.8209,
+    -0.0876
+   ],
+   "cells_changed": 2545,
+   "mean_report": 0.1401,
+   "mean_vis_cal": 0.1401,
+   "mean_target": 0.1437,
+   "mean_abs_change": 0.0191,
+   "corr_v3_jev": 0.9732
+  }
+ }
+}

@@ -1,11 +1,74 @@
-data/data
-output/v1/feature_cache
-data/Raw_dicom
-output/v2/preprocessed
-output/v2/feature_cache
-output/v3/preprocessed
-output/v3/feature_cache
-output/v3/test_feature_cache/1.2.826.0.1.3680043.8.498.10067514707072572280263481548497591402.npz
-output/v3/test_feature_cache/1.2.826.0.1.3680043.8.498.10062861783145312629332250977456991776.npz
-output/v3/test_feature_cache/1.2.826.0.1.3680043.8.498.10047035057544427318018579121635276191.npz
-output
+# ==============================================================================
+# RSNA Knee Abnormality Detection - Git Ignore
+# University of Delhi - Department of Electronics and Communication
+# ==============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# LaTeX build auxiliary files (Keep .tex and .pdf)
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Local logs and runtime transcripts
+*.log
+*_log.txt
+cufile.log
+
+# Scratch scripts and temporary prediction dumps
+_*.py
+_*.csv
+scratch_*.py
+*.tmp
+*receipt.json
+submission.csv
+*sub*.csv
+s6*_inpass.csv
+
+# Temporary and local outputs
+output/
+temp_*/
+tmp/
+src/emergency/tmp_extracted/
+
+# Raw Medical Imaging & Volumetric Data (Strict No Redistribution Rule)
+*.dcm
+*.npz
+*.npy
+*.zip
+*.tar
+*.tar.gz
+data/Raw_dicom/
+data/data/
+data/imaging_v5/
+data/labels_v3/
+reports/eda/
+
+# Model Checkpoints (Large binary weights)
+*.pt
+*.pth
+*.bin
+*.ckpt
+*.onnx
+
+# Operating System & IDE metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo

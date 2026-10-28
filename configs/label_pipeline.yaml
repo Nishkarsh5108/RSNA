@@ -1,0 +1,50 @@
+# labels_v3 pipeline configuration (documentation of the settings actually used on 2026-10-17).
+# Scripts take these values as CLI arguments; paths are configurable, nothing is moved.
+
+paths:
+  repo_root: D:/Coding/kaggle/RSNA
+  train_csv: D:/Coding/kaggle/RSNA/data/Raw_dicom/train.csv        # official, byte-identical to data/main_data/train (1).csv
+  train_series_csv: D:/Coding/kaggle/RSNA/data/Raw_dicom/train_series.csv
+  dicom_root: D:/Coding/kaggle/RSNA/data/Raw_dicom/train_series
+  feature_cache_v2: D:/Coding/kaggle/RSNA/output/v2/feature_cache   # frozen EfficientNet-B0, 12 slices x 1280 per plane
+  hf_cache: D:/rsna_work/hf_cache                                   # HF_HOME; model weights live on D:
+  labels_out: D:/Coding/kaggle/RSNA/data/labels_v3                  # git-ignored (contains report excerpts)
+  reports_out: D:/Coding/kaggle/RSNA/reports                        # *.md tracked-safe; reports/eda git-ignored
+
+gold_protocol:
+  gold_uids: data/labels_v3/gold_uids_LOCKED.csv
+  dev_uids: data/labels_v3/dev_pilot_uids.csv                       # 60 non-gold studies used for prompt/rule development
+  rules: data/labels_v3/EVALUATION_PROTOCOL.md
+
+llm_labeler:                       # src/labeling/llm_assertion_labeler.py
+  model: Qwen/Qwen3-4B-Instruct-2507
+  model_revision: cdbee75f17c01a7cc42f958dc650907174af0554
+  quantization: nf4 (bitsandbytes 0.50.1, double quant, bf16 compute)
+  prompt_version: assert-v3.1
+  decoding: forced-choice; next-token probabilities over letters A-E at 12 teacher-forced positions; greedy feedback
+  report_preprocessing: NFC + Greek micro-sign/increment fix; no character truncation (token cap 6000, flagged)
+  prefix_cache: true               # verified equivalent to uncached scoring (no |Δscore| > 0.2 in 96 items)
+  max_batch_tokens: 8000
+  max_batch_size: 4
+  a_priori_score: "pA + 0.5*pB + 0.25*pE"
+  failure_handling: "status in {ok, low_letter_mass, failed}; never imputed; resume skips ok rows"
+
+rule_extractor:                    # src/labeling/rule_extractor.py
+  version: rules-v1.1
+  state_scores: {present: 0.9, uncertain: 0.5, historical: 0.3, absent: 0.05, not_mentioned: 0.15}
+
+downstream_eval:                   # src/labeling/downstream_eval.py
+  features: feature_cache_v2
+  model: v2 head (shared attention-pool per plane -> concat -> MLP 3840-256-12)
+  train_set: 4,349 non-gold studies only
+  epochs: 12                       # fixed a priori, no early stopping
+  seeds: 5
+  optimizer: AdamW lr 1e-3 wd 1e-4, batch 64, BCE with pos_weight clip [1,10], NaN targets masked
+  evaluation: all 58 gold studies, macro ROC-AUC, study bootstrap (2000) CIs, paired bootstrap deltas
+
+environment:
+  conda_env: torch_gpu (Python 3.11.14)
+  key_packages: {torch: 2.7.1+cu118, transformers: 5.5.4, bitsandbytes: 0.50.1, accelerate: 1.13.0,
+                 pydicom: 3.0.2, scikit-learn: 1.8.0, pandas: 2.3.3, numpy: 2.4.4, lingua-language-detector: 2.1.1,
+                 opencv-python: 4.13.0.90, matplotlib: 3.10.7, scipy: 1.16.3}
+  hardware: {gpu: RTX 4050 Laptop 6 GB (driver 610.62), cpu: i5-13420H 8C/12T, ram_gb: 32, disk: NVMe SSD}

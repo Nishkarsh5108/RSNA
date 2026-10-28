@@ -1,0 +1,19 @@
+{
+  "id": "nishkarshsinghal/rsna-knee-s6ft-trainer",
+  "title": "rsna-knee-s6ft-trainer",
+  "code_file": "rsna-knee-s6ft-trainer.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": [
+    "nishkarshsinghal/rsna-knee-s6ft-cache",
+    "nartaa/rsna-knee-s6fall-weights"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": [],
+  "machine_shape": "NvidiaTeslaT4"
+}

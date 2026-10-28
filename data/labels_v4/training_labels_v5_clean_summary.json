@@ -1,0 +1,81 @@
+{
+ "pool": 4349,
+ "weights": {
+  "report": 0.7,
+  "vis_quantile_mapped": 0.3
+ },
+ "per_finding": {
+  "ACL": {
+   "mean_report": 0.2255,
+   "mean_target": 0.2255,
+   "spearman_vis_report": 0.4416,
+   "mean_abs_change": 0.0396
+  },
+  "MCL": {
+   "mean_report": 0.1569,
+   "mean_target": 0.1569,
+   "spearman_vis_report": 0.4332,
+   "mean_abs_change": 0.0349
+  },
+  "Medial Meniscus": {
+   "mean_report": 0.4384,
+   "mean_target": 0.4384,
+   "spearman_vis_report": 0.7477,
+   "mean_abs_change": 0.0454
+  },
+  "Lateral Meniscus": {
+   "mean_report": 0.1971,
+   "mean_target": 0.1971,
+   "spearman_vis_report": 0.5158,
+   "mean_abs_change": 0.0363
+  },
+  "Medial OA": {
+   "mean_report": 0.3524,
+   "mean_target": 0.3524,
+   "spearman_vis_report": 0.6831,
+   "mean_abs_change": 0.0507
+  },
+  "Lateral OA": {
+   "mean_report": 0.2516,
+   "mean_target": 0.2516,
+   "spearman_vis_report": 0.6007,
+   "mean_abs_change": 0.0506
+  },
+  "PF OA": {
+   "mean_report": 0.4118,
+   "mean_target": 0.4118,
+   "spearman_vis_report": 0.6806,
+   "mean_abs_change": 0.0611
+  },
+  "Effusion": {
+   "mean_report": 0.518,
+   "mean_target": 0.518,
+   "spearman_vis_report": 0.6642,
+   "mean_abs_change": 0.0701
+  },
+  "Synovitis": {
+   "mean_report": 0.2635,
+   "mean_target": 0.2635,
+   "spearman_vis_report": 0.6204,
+   "mean_abs_change": 0.0375
+  },
+  "Baker's": {
+   "mean_report": 0.2784,
+   "mean_target": 0.2784,
+   "spearman_vis_report": 0.5867,
+   "mean_abs_change": 0.0375
+  },
+  "Contusion": {
+   "mean_report": 0.235,
+   "mean_target": 0.235,
+   "spearman_vis_report": 0.5488,
+   "mean_abs_change": 0.0424
+  },
+  "Fracture": {
+   "mean_report": 0.1401,
+   "mean_target": 0.1401,
+   "spearman_vis_report": 0.4376,
+   "mean_abs_change": 0.0247
+  }
+ }
+}
