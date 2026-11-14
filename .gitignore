@@ -72,3 +72,8 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Local workstation demo (demo/): dependencies and build output
+demo/web/node_modules/
+demo/web/dist/
+demo/web/*.tsbuildinfo
