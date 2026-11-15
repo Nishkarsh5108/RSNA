@@ -1,0 +1,15 @@
+{
+ "studies": 4407,
+ "gold": 58,
+ "series": 24371,
+ "slices": 819078,
+ "bytes_GB": 569.154778424,
+ "series_per_study_median": 5.0,
+ "series_per_study_min": 3,
+ "series_per_study_max": 14,
+ "slices_per_study_median": 162.0,
+ "no_fs_sag": 257,
+ "no_fs_cor": 159,
+ "no_fs_ax": 0,
+ "laterality_tag_present": 2204
+}

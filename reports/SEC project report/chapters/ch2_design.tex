@@ -1,0 +1,340 @@
+% ======================================================================
+\chapter[PROJECT DESIGN]{Project Design}
+\label{ch:design}
+% ======================================================================
+
+\section{Project Perspective}
+
+The system has two halves that share the same image-processing code (Figure~\ref{fig:context}). The training half turns the 4,349 report-only studies into labelled examples and fits the image models. The inference half takes a new study as raw DICOM files and returns twelve probabilities. It runs in two places: inside a Kaggle notebook, where it reads the hidden test set and writes the submission file, and inside a local workstation, where it reads one study at a time and also shows the evidence for each finding.
+
+A third part sits beside both halves: the evaluation layer. It holds the 58 gold studies, the held-out folds and the leaderboard scores, and it decides which changes are kept. Keeping evaluation separate from training was a deliberate design choice, because the early versions of the project had mixed the two (Section~\ref{sec:impl-audit}).
+
+\begin{figure}[htbp]
+\centering\setstretch{1}
+\begin{tikzpicture}[node distance=5mm and 6mm]
+\node[data, text width=30mm] (rep) {Radiology reports\\(9 languages, training only)};
+\node[ours, right=of rep, text width=28mm] (lab) {Label generation\\(local LLM, rules,\\public label sets)};
+\node[data, right=of lab, text width=22mm] (soft) {Soft labels\\$y\in[0,1]^{12}$};
+\node[data, below=10mm of rep, text width=30mm] (dcm) {Training studies\\(DICOM, 4,407)};
+\node[ours, right=of dcm, text width=28mm] (pre) {Study index and\\preprocessing};
+\node[ours, right=of pre, text width=22mm] (train) {Model training\\(laptop, Kaggle)};
+\node[data, right=of train, text width=16mm] (w) {Model\\weights};
+\draw[arr] (rep) -- (lab); \draw[arr] (lab) -- (soft);
+\draw[arr] (dcm) -- (pre); \draw[arr] (pre) -- (train); \draw[arr] (train) -- (w);
+\draw[arr] (soft) -- (train);
+\node[data, below=22mm of dcm, text width=30mm] (test) {New study (DICOM)};
+\node[ours, right=of test, text width=28mm] (pre2) {Same preprocessing};
+\node[ours, right=of pre2, text width=22mm] (inf) {Inference\\(ensemble)};
+\node[data, right=of inf, yshift=6mm, text width=24mm] (sub) {submission.csv};
+\node[data, right=of inf, yshift=-6mm, text width=24mm] (ws) {Workstation view};
+\draw[arr] (test) -- (pre2); \draw[arr] (pre2) -- (inf); \draw[arr] (inf.east) -- (sub.west); \draw[arr] (inf.east) -- (ws.west);
+\draw[arr] (w.south) |- ($(inf.north)+(0,5mm)$) -- (inf.north);
+\begin{scope}[on background layer]
+\node[draw=black!40, dashed, rounded corners, fit=(rep)(lab)(soft)(dcm)(pre)(train)(w), inner sep=2.5mm] (th) {};
+\node[draw=black!40, dashed, rounded corners, fit=(test)(pre2)(inf)(sub)(ws), inner sep=2.5mm] (ih) {};
+\end{scope}
+\node[lbl, anchor=south west] at (th.north west) {training half};
+\node[lbl, anchor=north west] at (ih.south west) {inference half};
+\node[blk, fill=black!3, dashed, below=9mm of ih.south, minimum width=120mm] (eval) {Evaluation layer: gold-58 (sealed), held-out folds, public and private leaderboard};
+\end{tikzpicture}
+\caption[System context]{System context: the training half produces labels and weights; the inference half runs the same preprocessing on new studies, both on Kaggle and in the local workstation}
+\label{fig:context}
+\end{figure}
+
+\section{Project Functions}
+
+The system performs seven functions. Each one corresponds to a group of scripts in the code repository.
+
+\begin{enumerate}[label=\arabic*., leftmargin=1.6em]
+\item \textbf{Data audit and study indexing.} Read every DICOM header, group series into studies, assign each series to a plane and sequence slot, recover the knee side, and record problems such as truncated files or duplicate studies.
+\item \textbf{Label generation.} Turn each report into twelve soft labels between 0 and 1, and combine several label sources into one training target.
+\item \textbf{Preprocessing.} Decode the selected series, order the slices along the scanner's slice direction, normalise intensities, mirror right knees, and cut the stacks into the inputs the model expects.
+\item \textbf{Training.} Fit the image models on the labelled studies with fixed recipes, save restartable checkpoints, and log held-out results for every epoch.
+\item \textbf{Evaluation.} Score predictions against gold-58, held-out folds and label sets that were not used for training, with paired bootstrap confidence intervals.
+\item \textbf{Inference and submission.} Package the models and their dependencies for an offline Kaggle notebook, predict the hidden test set within the time limit, and write the submission file.
+\item \textbf{Visualisation.} Load a single study in a browser, run the models on the local GPU, and show the findings with the evidence behind each one.
+\end{enumerate}
+
+\section{User Characteristics}
+
+The users of the system, described in Section~1.2, differ in what they know and what they need from it. The competition's scoring service is fully automatic and has no tolerance for format errors. The project team are engineering students with working knowledge of Python, PyTorch and machine learning but no clinical training; they use the command-line tools and notebooks directly. The demonstration audience, which includes faculty members and radiology researchers, is expected to understand the clinical findings but not the code. For them the workstation has to explain itself. It names each processing step as it runs and labels every overlay, and it states in plain words that it is a research prototype and not a diagnostic tool.
+
+\section{Constraints}
+
+The design had to respect the following constraints.
+
+\begin{itemize}[leftmargin=1.4em]
+\item \textbf{Labels.} Only 58 studies carry expert labels. Training must rely on labels derived from reports, which are noisy and, for some findings, systematically different from what an image reader would say.
+\item \textbf{Evaluation.} With 58 gold studies, a single study can move a finding's AUC by about 0.01, and two training runs that differed only in the random seed (the number that fixes the random initialisation and data order) differed by 0.013 in gold macro AUC. Small improvements cannot be confirmed on gold-58, and choosing models by their gold score would fit them to these 58 studies.
+\item \textbf{Hardware.} The laptop GPU has 6~GB of memory, shared with the display under Windows. Exceeding it silently moves memory to system RAM and slows training by a factor of 10 to 50. Long runs also made the GPU throttle its clock because of heat.
+\item \textbf{Competition rules.} The limits of Section~1.1.2 apply: nine hours of run time without internet, five submissions a day and two final picks. A hidden-test run takes from under one hour to more than eight hours, and its log is not visible to the team. Kaggle's software image used Python 3.13, so every compiled package we added had to be shipped as a matching installation file, and its T4 GPUs do not support bfloat16 arithmetic.
+\item \textbf{Data rules.} No redistribution of competition data, no report text sent to hosted services, and external data only if it is freely and equally available to all participants.
+\item \textbf{Test-time inputs.} Reports and labels are absent at test time, so nothing derived from a report can be a model input.
+\item \textbf{DICOM variation.} Compressed transfer syntaxes in the test set, missing fluid-sensitive series in some studies, very long three-dimensional series, and a laterality tag that is missing for about half of the studies.
+\end{itemize}
+
+\section{Methodology}
+\label{sec:methodology}
+
+\subsection{Development approach}
+
+We worked in stages. Each stage ended with a measured result, and the next stage was chosen by looking at what limited that result. Figure~\ref{fig:stages} shows the six stages and the main number reached in each, and Chapter~3 describes them in order. For most of the project we followed two working rules. Before a change was tested we wrote down the rule that would decide whether it was kept, so that a lucky result could not be read as an improvement afterwards. We also recorded every decision, including the rejected ones, in a decision log together with its evidence. The main exception to the first rule, on the last day of the competition, is described in Section~\ref{sec:impl-endgame}.
+
+\begin{figure}[htbp]
+\centering\setstretch{1}
+\begin{tikzpicture}[stage/.style={blk, text width=36mm, minimum height=19mm, fill=white}, node distance=5mm and 6mm]
+\node[stage, fill=black!5] (s1) {\textbf{Stage 1}\\first LLM labels,\\frozen-feature models\\[2pt]\emph{public LB 0.775}};
+\node[stage, fill=blue!7, right=of s1] (s2) {\textbf{Stage 2}\\data and label audit,\\new local labeller\\[2pt]\emph{label AUC 0.868 / 0.890}};
+\node[stage, fill=blue!7, right=of s2] (s3) {\textbf{Stage 3}\\fine-tuned 2.5D\\MIL network\\[2pt]\emph{private LB 0.916}};
+\node[stage, fill=orange!10, below=of s3] (s4) {\textbf{Stage 4}\\ensembles built around\\public models\\[2pt]\emph{private LB 0.943}};
+\node[stage, fill=blue!7, left=of s4] (s5) {\textbf{Stage 5}\\label diagnosis, published\\box pooling, fused labels\\[2pt]\emph{private LB 0.958}};
+\node[stage, fill=blue!7, left=of s5] (s6) {\textbf{Stage 6}\\local workstation\\with exact evidence\\[2pt]\emph{max.\ deviation $1.6\times10^{-4}$}};
+\draw[arr] (s1) -- (s2); \draw[arr] (s2) -- (s3); \draw[arr] (s3) -- (s4); \draw[arr] (s4) -- (s5); \draw[arr] (s5) -- (s6);
+\end{tikzpicture}
+\caption[Development stages of the project]{Development stages of the project and the main result of each stage (LB: leaderboard; the Stage~2 figures are the gold-58 AUC of our labeller alone and of the three-source training labels)}
+\label{fig:stages}
+\end{figure}
+
+\subsection{Evaluation methodology}
+\label{sec:method-eval}
+
+Three references were used to judge models, because none of them is good enough alone.
+
+\paragraph{Gold-58.} The 58 expert-labelled studies were never used for training. For our own model in Stage~3, their predictions were saved in a sealed file during training and scored once, after the model choice had been fixed; the scoring script wrote a lock file before computing any metric and refused to run a second time. In Stage~4 the public models and blends were compared on gold-58, and the last-day blend weights were fitted to it (Section~\ref{sec:impl-endgame}). In Stage~5 the gold score was logged after every epoch, but the last epoch was always used. Gold-58 is the only reference that is close to the test labels in kind, but it is small and enriched.
+
+\paragraph{Held-out folds.} For our own model the 4,349 report-only studies were split into five \emph{folds} (disjoint subsets) at study level, stratified by report language and by the number of positive findings. Patient-level grouping was impossible because patient identifiers are unique per study; the one pixel-identical duplicate pair was kept in a single fold. Fold~0 of this split (870 studies), which we call \emph{our fold~0}, was held out of training and served as the validation set. Its labels are report-derived, so in Stage~3 the held-out score measured agreement with report labels. In Stage~5 the same studies were also scored against an image-read label set that had not been used to train the model being scored. The box-pooling models of Stage~5 used the five-fold split of the published code instead. Its fold~0, which we call \emph{the published fold~0}, also has 870 studies but shares only 180 of them with ours, so the results of Chapter~3 state which split they use.
+
+\paragraph{Leaderboard.} The public and private leaderboards score the hidden test set. They are the final judge, but a team sees only three decimals, has five submissions a day, and learns the private score only after the competition.
+
+\paragraph{Paired bootstrap.} When two models are compared on the same studies, we resample the studies with replacement $R=2000$ times and compute the difference in macro AUC on each resample,
+\begin{equation}
+\Delta^{(r)} = S\big(\hat p^{\,\text{new}}_{I_r}, y_{I_r}\big) - S\big(\hat p^{\,\text{ref}}_{I_r}, y_{I_r}\big), \qquad r = 1,\dots,R,
+\label{eq:bootstrap}
+\end{equation}
+where $I_r$ is the $r$-th resample of study indices and $S$ is the macro AUC of Equation~\eqref{eq:macroauc}. The 2.5th and 97.5th percentiles of $\Delta^{(r)}$ give a 95\% confidence interval \cite{efron1993}. Because both models are scored on the same resample, the study-to-study variation cancels and the interval is much narrower than the interval of either score alone. A change was adopted only if it passed the rule written down before the run, typically a positive point estimate with a lower confidence bound at or above zero on the held-out data.
+
+\subsection{Design of the label generation}
+\label{sec:design-labels}
+
+The first labeller of the project asked an LLM to write a JSON object with twelve probabilities and parsed the answer with regular expressions. When parsing failed, the script wrote 0.5 for every finding without any flag, and long reports were cut to 1,200 characters. The redesigned labeller avoids free-text output altogether (Figure~\ref{fig:labeller}). The full report is placed in a prompt that defines the twelve findings and five answer letters: \textbf{A} present, \textbf{B} possible, \textbf{C} not mentioned, \textbf{D} absent and \textbf{E} prior only (a finding mentioned as history, for example a repaired ligament). The answer layout is fixed in advance (``ACL injury: \_'', ``MCL injury: \_'', and so on), and at each blank the model's next-token distribution over the five letters is read directly. The most likely letter is then written into the blank before the next item, exactly as greedy decoding would do. Nothing is parsed, so there is no failure fallback, and the probability mass on the five letters is stored as a check that the model followed the format.
+
+\begin{figure}[htbp]
+\centering\setstretch{1}
+\begin{tikzpicture}[node distance=4mm and 6mm]
+\node[data] (r) {Report text};
+\node[ours, right=of r] (n) {Unicode\\normalisation};
+\node[ours, right=of n, text width=38mm] (p) {Prompt: 12 findings,\\letters A--E,\\fixed answer layout};
+\node[ours, right=of p] (q) {Qwen3-4B\\(4-bit, local GPU)};
+\node[ours, below=9mm of q] (l) {letter probabilities\\$p_A,\dots,p_E$ per item};
+\node[ours, left=of l] (s) {score $\phi$\\(Eq.~\ref{eq:s0}),\\two item orders};
+\node[pub, left=of s] (pubL) {public label\\sets P1 and P2};
+\node[data, left=of pubL] (y) {teacher label\\(mean of three)};
+\draw[arr] (r) -- (n); \draw[arr] (n) -- (p); \draw[arr] (p) -- (q); \draw[arr] (q) -- (l); \draw[arr] (l) -- (s);
+\draw[arr] (s) -- (pubL); \draw[arr] (pubL) -- (y);
+\end{tikzpicture}
+\caption[Forced-choice labelling pipeline]{Forced-choice labelling: the model never writes free text; its letter probabilities at fixed answer positions become a soft score, which is averaged with two public label sets}
+\label{fig:labeller}
+\end{figure}
+
+The five probabilities are turned into one score with weights fixed before any gold evaluation,
+\begin{equation}
+\phi = p_A + 0.5\,p_B + 0.25\,p_E ,
+\label{eq:s0}
+\end{equation}
+so that a definite statement counts fully, a possible finding counts half, and a historical finding counts a quarter. The model answers the items in order and can be influenced by its earlier answers, so the labeller was run twice, once with the twelve items in the given order and once reversed, and the two scores were averaged. The final training target for study $i$ and finding $k$ is the plain mean of three sources,
+\begin{equation}
+y_{ik} = \tfrac13\big(\bar\phi_{ik} + y^{\text{P1}}_{ik} + y^{\text{P2}}_{ik}\big),
+\label{eq:teacher}
+\end{equation}
+where $\bar\phi$ is the order-averaged LLM score and $y^{\text{P1}}$, $y^{\text{P2}}$ are two report-derived label sets that other participants had published on Kaggle. Their files carry no record of who made them or how, and six of the 58 gold rows in P1 are identical to the gold labels, so the gold agreement of any mixture that contains P1 may be slightly optimistic. Findings that a report does not mention keep their low score; they are not masked out.
+
+\subsection{Design of the 2.5D image model}
+\label{sec:design-mil}
+
+The image model of Stage~3 is a multiple-instance network that reads three series per study (Figure~\ref{fig:mil}).
+
+\paragraph{Series selection.} Each study has six slots, one for each combination of plane (sagittal, coronal, axial) and sequence (fluid-sensitive or not). The model uses the three fluid-sensitive slots. If a plane has no fluid-sensitive series, the non-fluid-sensitive series of that plane is used instead, and a plane with no series at all is masked. When a slot has several candidates, the series with the most slices is chosen.
+
+\paragraph{Slice order and intensity.} Slices are sorted by their position along the slice normal. With the row and column direction cosines $\mathbf r$ and $\mathbf c$ from the ImageOrientationPatient tag and the slice origin $\mathbf o_i$ from ImagePositionPatient,
+\begin{equation}
+d_i = (\mathbf r \times \mathbf c)\cdot \mathbf o_i ,
+\label{eq:sliceorder}
+\end{equation}
+and the slices are placed in increasing order of $d_i$. Intensities are mapped to 8 bits with the series' own 1st and 99th percentiles $q_{1}$ and $q_{99}$,
+\begin{equation}
+u = 255\cdot\min\!\Big(1,\max\!\Big(0,\frac{v-q_{1}}{q_{99}-q_{1}}\Big)\Big),
+\label{eq:norm}
+\end{equation}
+which removes the factor of 25 between vendors while keeping relative brightness across the slices of one series. Each slice is resized to $224\times224$ pixels.
+
+\paragraph{Laterality.} The knee side is read from the DICOM laterality tag when it is present. Otherwise it is taken from the sign of the patient $x$ coordinate of the coronal and axial volumes, using only series that lie at least 20~mm from the midline. For right knees the coronal and axial images are mirrored left to right, and the order of the sagittal slices is reversed, so that in every study the first sagittal slice is on the lateral side.
+
+\paragraph{2.5D windows.} A series with $T$ slices is covered by $K=8$ windows whose centre slices $\mu_r$ are spread over 4--96\% of the stack,
+\begin{equation}
+\mu_r = \operatorname{round}\!\Big(0.04(T-1) + r\,\frac{0.92\,(T-1)}{K-1}\Big), \qquad r = 0,\dots,K-1 .
+\label{eq:centres}
+\end{equation}
+Each window stacks three slices $\{\mu_r-g,\;\mu_r,\;\mu_r+g\}$ as the three colour channels of one image, with the step $g=\max(1,\operatorname{round}(3.5\,\text{mm}/\delta))$ chosen from the slice spacing $\delta$ so that neighbouring channels are about 3.5~mm apart. During training each centre is drawn at random inside its bin, which acts as data augmentation.
+
+\begin{figure}[htbp]
+\centering\setstretch{1}
+\begin{tikzpicture}[node distance=4mm and 4.5mm, every node/.append style={font=\scriptsize}]
+\node[data, text width=22mm] (in) {3 series $\times$ 8 windows,\\each $3\times224\times224$};
+\node[ours, right=of in, text width=24mm] (enc) {ConvNeXt-T\\(shared, fine-tuned),\\768 features};
+\node[ours, right=of enc, text width=25mm] (proj) {Linear 768$\to$384,\\LayerNorm,\\+ slot embedding,\\+ position network};
+\node[ours, right=of proj, text width=24mm] (att) {12 attention heads\\over 24 tokens\\(Eq.~\ref{eq:attn})};
+\node[ours, right=of att, text width=19mm] (head) {12 linear heads,\\sigmoid};
+\node[data, below=6mm of head, text width=19mm] (out) {12 study\\probabilities};
+\draw[arr] (in) -- (enc); \draw[arr] (enc) -- (proj); \draw[arr] (proj) -- (att); \draw[arr] (att) -- (head); \draw[arr] (head) -- (out);
+\end{tikzpicture}
+\caption[The 2.5D multiple-instance network]{The 2.5D multiple-instance network of Stage 3; every window is encoded independently and each finding pools the 24 window tokens with its own attention weights}
+\label{fig:mil}
+\end{figure}
+
+\paragraph{Network.} Every window is encoded by a ConvNeXt-Tiny network \cite{liu2022convnext} pretrained on ImageNet-22k and fine-tuned on ImageNet-1k, taken from the timm library \cite{wightman2019timm}. The 768-dimensional pooled feature is passed through dropout, a linear layer to 384 dimensions and layer normalisation. A learned slot embedding (which plane) and a small network of the slice position $p=\mu_r/(T-1)$ are added, giving a token $\mathbf t_j$ for each of the 24 windows ($j=1,\dots,24$). For each finding $k$, an attention network in the style of Ilse \emph{et al.} \cite{ilse2018} assigns a weight to every valid token,
+\begin{equation}
+a_{k,j} = \big[\mathbf W_2 \tanh(\mathbf W_1 \mathbf t_j + \mathbf b_1) + \mathbf b_2\big]_k, \qquad
+\alpha_{k,j} = \frac{\exp(a_{k,j})}{\sum_{j'} \exp(a_{k,j'})},
+\label{eq:attn}
+\end{equation}
+with $\mathbf W_1\in\mathbb R^{256\times384}$ and $\mathbf W_2\in\mathbb R^{12\times256}$. The \emph{logit} $z_k$ (the score before the sigmoid that turns it into a probability) is a linear function of the pooled token,
+\begin{equation}
+z_k = \Big\langle \sum_j \alpha_{k,j}\mathbf t_j ,\, \mathbf v_k\Big\rangle + b_k = \sum_j \alpha_{k,j}\,\langle \mathbf t_j,\mathbf v_k\rangle + b_k .
+\label{eq:milogit}
+\end{equation}
+The second form of Equation~\eqref{eq:milogit} shows what the model can and cannot do. The study logit is an attention-weighted average of per-window scores $\langle\mathbf t_j,\mathbf v_k\rangle$, so a finding seen on one window raises the logit only if the attention concentrates on that window. Evidence from two planes is averaged rather than combined by a logical ``and''. The whole network has 28.4 million parameters, of which 27.8 million are in the encoder.
+
+\paragraph{Training objective.} The model is trained with binary cross-entropy against the soft labels of Equation~\eqref{eq:teacher},
+\begin{equation}
+\mathcal L = -\frac{1}{12N}\sum_{i=1}^{N}\sum_{k=1}^{12}\Big[y_{ik}\log\sigma(z_{ik}) + (1-y_{ik})\log\big(1-\sigma(z_{ik})\big)\Big],
+\label{eq:bce}
+\end{equation}
+where $N$ is the number of studies in a batch and $\sigma$ is the logistic (sigmoid) function. The optimiser is AdamW \cite{loshchilov2019adamw} with a cosine learning-rate schedule \cite{loshchilov2017sgdr}, and an exponential moving average (EMA) of the weights is kept,
+\begin{equation}
+\boldsymbol\theta_{\text{EMA}} \leftarrow \lambda\,\boldsymbol\theta_{\text{EMA}} + (1-\lambda)\,\boldsymbol\theta, \qquad \lambda = 0.999 ,
+\label{eq:ema}
+\end{equation}
+whose weights are the ones evaluated and shipped. At inference, each model is run on two sets of window centres, the training setting and a set shifted by half a window step, and the sigmoid outputs are averaged over the two sets and over the models of the ensemble.
+
+\subsection{The box-pooling model adopted after the competition}
+\label{sec:design-bp}
+
+After the competition we adopted a stronger architecture published as open source by the winning team \cite{tascj_boxpool,tascj_roidetector,tascj_sideclassifier}. The networks, their training script and their recipe are the winning team's. Our own design work was limited to the choice of labels, training the model on several folds, the ensemble and the inference pipeline around the published modules (Section~\ref{sec:impl-post}). The pipeline has three networks that run in sequence (Figure~\ref{fig:bp}).
+
+\begin{figure}[htbp]
+\centering\setstretch{1}
+\begin{tikzpicture}[node distance=5mm and 9mm, every node/.append style={font=\scriptsize}]
+\node[data, text width=17mm] (st) {Study\\(all series)};
+\node[pub, right=of st, text width=25mm] (side) {Side classifier\\ResNet-18d on\\coronal and axial};
+\node[pub, right=of side, text width=25mm] (det) {ROI detector\\ConvNeXt-T, 3D fusion,\\flip averaging};
+\node[pub, right=of det, text width=27mm] (cls) {Box-pooling classifier\\ConvNeXt-T,\\112~mm crop at 256 px};
+\node[ours, below=9mm of cls, text width=27mm] (ens) {mean over series,\\then over 6 models};
+\node[data, left=of ens, text width=25mm] (out) {12 study\\probabilities};
+\node[ours, above=6mm of det, text width=36mm] (lab) {training labels: fused\\$\tfrac12\,(y^{\text{1st}}+y^{\text{7th}})$};
+\draw[arr] (st) -- (side); \draw[arr] (side) -- node[lbl, above=1pt]{side} (det); \draw[arr] (det) -- node[lbl, above=1pt]{12 boxes} (cls); \draw[arr] (cls) -- (ens); \draw[arr] (ens) -- (out);
+\draw[arr, dashed] (lab.east) -| (cls.north);
+\end{tikzpicture}
+\caption[Box-pooling pipeline used after the competition]{Box-pooling pipeline used after the competition. Orange blocks are the published architecture of the winning team; blue blocks are the parts added in this project (label averaging, fold training, ensemble and inference wrapper)}
+\label{fig:bp}
+\end{figure}
+
+\paragraph{Side classifier and detector.} A ResNet-18d \cite{he2016resnet,he2019bagoftricks} encodes every slice of the coronal and axial series, averages over the slices and gives the probability that the knee is a right knee; the study's side is the mean over its series. Left knees are then mirrored so that all studies look alike. A ConvNeXt-T detector reads every slice of a series at 160 pixels, fuses the features of its four stages top-down in three dimensions, in the manner of a feature pyramid \cite{lin2017fpn}, and is conditioned on the plane, knee side, fat-suppression flag and field of view through FiLM layers \cite{perez2018film}. It was trained on boxes that the winning team's LLM agents had drawn around each finding's anatomy in 748 training studies. It outputs one three-dimensional box per finding per series, and its output is averaged with a pass on the mirrored series.
+
+\paragraph{Box pooling.} Every slice is resampled to a 140~mm field on a 384-pixel grid, which fixes the physical size of a pixel at 0.365~mm. The classifier reads a 112~mm window, centred on the boxes of the ACL, the two menisci and the two tibiofemoral compartments, at 256 pixels. ConvNeXt-T encodes each slice into an $8\times8$ grid of 768-dimensional feature cells $\mathbf f_{n,c}$ (slice $n$, cell $c$). For finding $k$, each cell receives the weight
+\begin{equation}
+w_{k,n,c} = \beta_{k,n,c}\,\exp\!\big(a_{k,n,c} - \max a_k\big),
+\label{eq:boxweight}
+\end{equation}
+where $\beta_{k,n,c}\in[0,1]$ is the fraction of the cell that lies inside the finding's box (zero on slices outside its depth range) and $a_{k,n,c}$ is the output of a $1\times1$ convolution, initialised to zero, that learns where inside the box to look. The series logit is a linear function of the weighted mean feature,
+\begin{equation}
+z_k = \mathbf h_k^{\top}\,\frac{\sum_{n,c} w_{k,n,c}\,\mathbf f_{n,c}}{\sum_{n,c} w_{k,n,c}} + b_k .
+\label{eq:boxlogit}
+\end{equation}
+During training two auxiliary heads read the same features: a $1\times1$ convolution that predicts which cells are covered by annotated lesion boxes, and a linear layer that predicts a sentence embedding of the study's report from the mean feature of the series. The total loss is
+\begin{equation}
+\mathcal L = \mathcal L_{\text{BCE}} + 1.0\,\mathcal L_{\text{lesion}} + 0.3\,\big(1-\cos(\mathbf W\bar{\mathbf f},\,\mathbf e_{\text{report}})\big),
+\label{eq:bploss}
+\end{equation}
+where $\bar{\mathbf f}$ is the series' mean feature and $\mathbf e_{\text{report}}$ the report embedding. The auxiliary heads are not used at inference. A study's probability is the mean of its series' probabilities.
+
+\paragraph{Fused labels.} Two independent sets of image-read labels were published after the competition, by the first-placed and the seventh-placed teams \cite{tascj_agentlabels,songqizhou_llmlabels}. We trained on their mean, which we call the \emph{fused} labels. Because the binary cross-entropy of Equation~\eqref{eq:bce} is linear in the target,
+\begin{equation}
+\ell\Big(z,\tfrac{y^{(1)}+y^{(2)}}{2}\Big) = \tfrac12\,\ell\big(z,y^{(1)}\big) + \tfrac12\,\ell\big(z,y^{(2)}\big),
+\label{eq:fused}
+\end{equation}
+training one head on the mean label is exactly the same as training it on both label sets at once with equal weight. No extra model or loss term is needed.
+
+\subsection{Design of the local workstation}
+\label{sec:design-demo}
+
+The workstation is a small client--server application that runs entirely on the laptop (Figure~\ref{fig:demo-arch}). A Python server built with FastAPI \cite{fastapi} listens only on the local address 127.0.0.1. Its engine imports the published model modules unchanged and runs the same three passes as the Kaggle inference script, one series at a time, sending each intermediate result to the browser as soon as it exists: the side probability, both detector passes, the crop and every model's logits. The results travel as newline-delimited JSON over a single HTTP response. The browser application is written in React \cite{react} with Vite \cite{vite}, and three.js \cite{threejs} places the slices in patient coordinates in a three-dimensional view.
+
+\begin{figure}[htbp]
+\centering\setstretch{1}
+\begin{tikzpicture}[node distance=6mm and 22mm, every node/.append style={font=\scriptsize}]
+\node[ours, text width=33mm] (ui) {Browser (React, three.js):\\drop study, 2D and 3D views,\\findings, evidence overlays};
+\node[ours, right=of ui, text width=30mm] (api) {FastAPI server\\(127.0.0.1 only):\\upload, status, stream};
+\node[pub, right=12mm of api, text width=30mm] (eng) {Engine: published side,\\detector and classifier\\modules};
+\node[data, below=8mm of eng, text width=30mm] (gpu) {Laptop GPU\\RTX 4050, 6~GB,\\fp16 autocast};
+\node[data, below=8mm of api, text width=30mm] (cache) {Local cache of the\\uploaded study\\(deleted on purge)};
+\draw[arr] ($(ui.east)+(0,2mm)$) -- node[lbl, above=1pt]{zip upload} ($(api.west)+(0,2mm)$);
+\draw[arr] ($(api.west)-(0,2mm)$) -- node[lbl, below=1pt]{NDJSON stream} ($(ui.east)-(0,2mm)$);
+\draw[arr] (api) -- (eng); \draw[arr] (eng) -- (gpu); \draw[arr] (api) -- (cache);
+\end{tikzpicture}
+\caption[Architecture of the local workstation]{Architecture of the local workstation; no request leaves the machine}
+\label{fig:demo-arch}
+\end{figure}
+
+The explanation shown for each finding follows directly from Equation~\eqref{eq:boxlogit}. Writing $\pi_{k,n,c} = w_{k,n,c}/\sum w_k$ for the normalised pooling weight, the logit splits exactly into one term per feature cell,
+\begin{equation}
+z_k = \sum_{n,c} \pi_{k,n,c}\,\big(\mathbf h_k^{\top}\mathbf f_{n,c}\big) + b_k .
+\label{eq:attribution}
+\end{equation}
+For every finding the workstation shows two maps, the pooling weight $\pi$ (where the model looked) and the contribution $\pi\,\mathbf h_k^{\top}\mathbf f$ (what it found there). Unlike gradient-based saliency maps \cite{selvaraju2017gradcam}, these are not approximations: for each model the contributions add up to its own logit, and the interface reports the remaining difference, which comes only from float16 rounding, as a check. The maps shown on screen are averaged over the six models.
+
+\section{Equipment and Apparatus Required}
+
+The project needs no laboratory hardware. Table~\ref{tab:equipment} lists the computing equipment and the main software that was used.
+
+\begin{table}[htbp]
+\centering\footnotesize\setstretch{1}
+\caption{Hardware and software used in the project}
+\label{tab:equipment}
+\begin{tabularx}{\textwidth}{L{3.6cm} Y}
+\toprule
+Item & Specification \\
+\midrule
+Laptop (development, labelling, training, demonstration) & Intel Core i5-13420H (8 cores, 12 threads), 32~GB RAM, NVIDIA GeForce RTX~4050 Laptop GPU with 6~GB memory (compute capability 8.9), NVMe SSD storage, Windows~11 \\
+Kaggle notebooks & 2 $\times$ NVIDIA Tesla T4 (15~GB usable each), 4 vCPU, 31~GB RAM, 30 GPU-hours per week per account; Python 3.13 image \\
+Storage & about 570~GB for the uncompressed training data, plus up to 150~GB of temporary caches \\
+Local software & Python 3.11, PyTorch 2.7.1 with CUDA 11.8 \cite{paszke2019pytorch}, timm \cite{wightman2019timm}, pydicom 3.0.2 \cite{mason_pydicom} with pylibjpeg decoders, Hugging Face Transformers \cite{wolf2020transformers}, bitsandbytes \cite{bitsandbytes}, scikit-learn, pandas, matplotlib \\
+Kaggle software & PyTorch 2.11, timm 1.0.30, pydicom 3.0.2; decoder wheels shipped in a private dataset \\
+Workstation software & FastAPI \cite{fastapi}, React \cite{react}, Vite \cite{vite}, three.js \cite{threejs} \\
+Tools & Git, Kaggle command-line client \cite{kaggle_cli}, \LaTeX \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Assumptions and Dependencies}
+
+The design rests on the following assumptions, each of which was checked as far as the data allowed.
+
+\begin{itemize}[leftmargin=1.4em]
+\item The gold-58 labels are close in kind to the hidden test labels, that is, both come from expert reading of the images. This is consistent with the participant reports and with our measurements, but it was never confirmed officially.
+\item The hidden test set comes from the same hospitals and scanners as the training set. The organisers warned only that the prevalence of findings may differ.
+\item Studies are independent. Patient identifiers are unique per study, so repeat scans of one patient, if any, could fall into different folds without our knowledge.
+\item The public assets we depended on (pretrained encoders, public label sets, the published post-competition code and labels) remain available under their licences: Apache~2.0 for the winning team's notebooks, CC~BY~4.0 for its labels and CC~BY-NC-SA~4.0 for the seventh-placed team's labels.
+\item The free Kaggle GPU quota remains available at about 30 hours per week per account.
+\end{itemize}
+
+\section{Specific Requirements}
+
+\paragraph{Interface requirements.} The inference code reads the competition's test folder, in which each series is a directory of DICOM files, together with \texttt{test\_series.csv}, which lists the plane and fluid-sensitivity flag of each series. It writes \texttt{submission.csv} with the column \texttt{StudyInstanceUID} followed by the twelve finding columns in the order of Table~\ref{tab:targets}, with one row per test study and every value a finite number in $[0,1]$. It also writes a log file that records failures, fallbacks and timings.
+
+\paragraph{Performance requirements.} The full hidden test set must be processed within nine hours on one Kaggle T4 GPU. On the laptop, peak GPU memory must stay below the 6~GB of the card, including the memory used by the display.
+
+\paragraph{Reliability requirements.} A series that cannot be decoded must never be replaced by a blank image. The pipeline either uses the next candidate series for the same slot, masks the slot, or skips the series and reports it. A missing decoder must stop the run at the start rather than produce a submission from empty images. If a batch fails, for example because one very long series exhausts GPU memory, the batch is repeated one series at a time.
+
+\paragraph{Privacy and security requirements.} No report text is sent to any external service. The workstation server accepts connections only from the same machine, keeps uploaded studies in a local cache that is deleted when the study is purged or the server stops, and loads all fonts and libraries from local files.
+
+\paragraph{Quality requirements.} Notebooks are generated from tested Python modules rather than edited by hand, so that the code that is submitted is the code that was tested.

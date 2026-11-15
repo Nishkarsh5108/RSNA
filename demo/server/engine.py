@@ -255,17 +255,18 @@ class Engine:
                 send("classifier", "frame", series=uid, mirror=bool(x["mirror"][0]), depth=int(depth[0]), native=native,
                      crop=geo["crop"], framePx=C.FRAME_PX, cropPx=C.CROP_PX, ms=round((now() - t) * 1000, 1))
                 rec = dict(uid=uid, models={}, inputs=inp.clamp(0, 255).round().to(torch.uint8).cpu().numpy(), **geo)
-                share_sum = contrib_sum = box_sum = None
+                share_sum = contrib_sum = box_sum = lesion_sum = None
                 for k, m in self.cls:
                     tm = now()
-                    logits, share, contrib, boxw, err = self._explained(m, inp, ss, depth, theta, C.pooling_boxes(bx))
+                    logits, share, contrib, boxw, lesion, err = self._explained(m, inp, ss, depth, theta, C.pooling_boxes(bx))
                     if bool(x["mirror"][0]):                 # maps back to the native orientation
-                        share, contrib, boxw = share.flip(-1), contrib.flip(-1), boxw.flip(-1)
+                        share, contrib, boxw, lesion = share.flip(-1), contrib.flip(-1), boxw.flip(-1), lesion.flip(-1)
                     probs = torch.sigmoid(logits)
                     rec["models"][k] = dict(logits=_np(logits).tolist(), probs=_np(probs).tolist(), attributionError=err)
                     share_sum = share if share_sum is None else share_sum + share
                     contrib_sum = contrib if contrib_sum is None else contrib_sum + contrib
                     box_sum = boxw if box_sum is None else box_sum + boxw
+                    lesion_sum = lesion if lesion_sum is None else lesion_sum + lesion
                     send("classifier", "model", series=uid, model=k, probs=[round(v, 5) for v in _np(probs).tolist()],
                          logits=[round(v, 4) for v in _np(logits).tolist()], slices=int(depth[0]), cells=list(share.shape[-2:]),
                          channels=int(m.head.in_features), attributionError=err, ms=round((now() - tm) * 1000, 1))
@@ -273,6 +274,7 @@ class Engine:
                 rec["share"] = _np(share_sum / M).astype(np.float16)        # [D, 12, 8, 8]
                 rec["contrib"] = _np(contrib_sum / M).astype(np.float16)    # [D, 12, 8, 8], logit units
                 rec["boxWeight"] = _np(box_sum / M).astype(np.float16)      # geometric box share before attention
+                rec["lesion"] = _np(lesion_sum / M).astype(np.float16)      # lesion head: P(cell covered by a lesion)
                 rec["probs"] = np.mean([v["probs"] for v in rec["models"].values()], 0).tolist()
                 per_series[uid] = rec
                 send("classifier", "series", series=uid, probs=[round(v, 5) for v in rec["probs"]], ms=round((now() - t) * 1000, 1))
@@ -305,7 +307,9 @@ class Engine:
 
     # ------------------------------------------------------------------ helpers
     def _explained(self, m, inp, ss, depth, theta, boxes):
-        """Logits from the model's own forward; attribution from its captured encoder output."""
+        """Logits from the model's own forward; attribution from its captured encoder output. Also the lesion head
+        (a 1 x 1 convolution trained, during training only, to predict each finding's per-slice lesion boxes as cell
+        coverage): it reads the same features but does not feed the logit, so it is an independent localisation."""
         captured = {}
         enc = m.encoder
         original = enc.forward_features
@@ -350,7 +354,12 @@ class Engine:
         err = float((recon - logits).abs().max())
         bsum = box_weight.sum((0, 2, 3))
         box_share = torch.where((bsum > 0)[None, :, None, None], box_weight / bsum.clamp(min=1e-12)[None, :, None, None], uniform)
-        return logits, share, contrib, box_share, err
+        if m.lesion_head is not None:
+            with torch.autocast(**self.amp):
+                lesion = torch.sigmoid(m.lesion_head(padded)[:n].float())
+        else:
+            lesion = torch.zeros_like(share)
+        return logits, share, contrib, box_share, lesion, err
 
     @staticmethod
     def _geometry(x, theta, native, rows, cols, bx):

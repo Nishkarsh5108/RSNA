@@ -1,0 +1,154 @@
+% Preliminary pages in the order required by the department's guidelines (item 4): candidate's declaration,
+% abstract, acknowledgement, list of figures, list of tables, definitions/acronyms/abbreviations, contents.
+
+% ---------------------------------------------------------------- declaration (page i)
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{\texorpdfstring{\textit{Candidate's Declaration}}{Candidate's Declaration}}
+\begin{center}
+{\singlespacing\bfseries\fontsize{16}{20}\selectfont FACULTY OF TECHNOLOGY\\[4pt] UNIVERSITY OF DELHI\par}
+\end{center}
+\vspace{10pt}
+\begin{center}
+{\bfseries\fontsize{12}{15}\selectfont CANDIDATE'S DECLARATION}
+\end{center}
+\vspace{4pt}
+We hereby certify that the work which is being presented in the Project entitled ``Knee Abnormality Detection Using Deep Learning'' by ``Nishkarsh Singhal, Anuj Chaubey and Vardhan Harsh Nigam'' in partial fulfilment of requirements for the award of degree of B.Tech.\ (Electronics and Communication Engineering) submitted to the Department of Electronics and Communication Engineering at Faculty of Technology, University of Delhi, Delhi is an authentic record of our own work carried out during a period from August 2026 to November 2026. The matter presented in this project has not been submitted by us or anybody else in any other University / Institute.
+
+Public models, code and label sets released by other participants of the RSNA Knee Abnormality Detection challenge were used where stated in the report and are acknowledged in the text and in the references.
+
+\vspace{1.2cm}
+\noindent\textbf{Signature of the Students}
+
+\vspace{0.6cm}
+{\singlespacing
+\noindent\begin{tabular}{@{}p{5.0cm}p{5.0cm}p{5.0cm}@{}}
+\rule{4.4cm}{0.4pt} & \rule{4.4cm}{0.4pt} & \rule{4.4cm}{0.4pt} \\
+Nishkarsh Singhal & Anuj Chaubey & Vardhan Harsh Nigam \\
+Roll No.\ 24294917099 & Roll No.\ 24294917055 & Roll No.\ 24294917014 \\
+\end{tabular}}
+
+\vspace{1.6cm}
+{\singlespacing
+\noindent\begin{tabular}{@{}>{\raggedright\arraybackslash}p{7.6cm}>{\raggedright\arraybackslash}p{7.6cm}@{}}
+\rule{5.6cm}{0.4pt} & \rule{5.6cm}{0.4pt} \\
+\textbf{Dr.\ Varun Saxena} & \textbf{Dr.\ Sangeeta Yadav} \\
+Associate Professor (Project Supervisor) & Assistant Professor (Co-Supervisor) \\
+Department of Electronics \& Communication Engineering & Department of Computer Science \& Engineering \\
+Faculty of Technology, University of Delhi & Faculty of Technology, University of Delhi \\
+\end{tabular}}
+
+\begin{center}{\footnotesize\bfseries (Signature and Name of Project Guide/Guides)}\end{center}
+
+% ---------------------------------------------------------------- abstract (page ii, not more than one page)
+\frontchapter{Abstract}
+{\setstretch{1.75}
+This project developed a deep learning system that reads a complete knee MRI study in DICOM format and estimates the probability of twelve abnormalities, including ligament and meniscal tears, osteoarthritis, joint effusion and bone injuries. It was built on the data of the RSNA Knee Abnormality Detection challenge on Kaggle: 4,407 training studies, of which only 58 carry expert labels, while the rest have free-text reports in nine languages. We first audited the data and replaced an unreliable labelling pipeline with a language model run locally in a forced-choice mode. Its labels agreed with the expert labels at a macro AUC of 0.868, or 0.890 after averaging with two public label sets. On these labels we trained a fine-tuned 2.5D multiple-instance network with one attention head per finding, which raised the leaderboard score of our frozen-feature baseline from 0.775 to 0.927 (0.916 on the private leaderboard). In the final week we built ensembles around the strongest public models, after tracing their training data and re-running each one locally, and re-engineered one inference pipeline so that an extra model fitted within the nine-hour limit; the best entry scored 0.943 on the private leaderboard, in the bronze-medal range. After the competition, an experiment in which only the training labels were changed showed that the labels limited our model more than its design: labels read from the images raised its gold-set AUC from 0.891 to 0.928. We then retrained the winning team's published box-pooling pipeline. It reproduced the published single-model score (0.955 against 0.954), and training it on the mean of two published image-read label sets gave 0.958 on the private leaderboard, where the winning team scored 0.960. Last, we built a local workstation that runs the final models on a 6~GB laptop GPU, matches our Kaggle inference script to within $1.6\times10^{-4}$, and shows for each model an exact breakdown of its score over image regions.\par}
+
+\vspace{6pt}
+\noindent\textbf{Keywords:} knee MRI, deep learning, multiple-instance learning, weak supervision, report-derived labels, ConvNeXt, explainability.
+
+% ---------------------------------------------------------------- acknowledgement (page iii)
+\frontchapter{Acknowledgement}
+We are grateful to our project supervisor, Dr.\ Varun Saxena, Associate Professor in the Department of Electronics and Communication Engineering, for guidance and encouragement throughout this project, and for giving us the freedom to explore the problem in our own way. We thank our co-supervisor, Dr.\ Sangeeta Yadav, Assistant Professor in the Department of Computer Science and Engineering, for advice on the machine learning side of the work and for careful questions about how we evaluated our models.
+
+We thank the Department of Electronics and Communication Engineering, Faculty of Technology, University of Delhi, for the opportunity to take up this project. We thank the Radiological Society of North America and Kaggle for organising the RSNA Knee Abnormality Detection challenge and making its data available for research, and Kaggle for the free GPU time without which the larger models could not have been trained.
+
+Several participants of the challenge shared their work openly, and this project depended on it. We thank the first-placed team, Team Kangaroo, for publishing their training code and labels, the seventh-placed team for publishing their label set, and the authors of the public models and label sets that we used during the competition.
+
+We also thank our families and friends for their patience during the long hours that this project took.
+
+\vspace{1cm}
+\noindent\begin{tabular}{@{}l@{}}
+Nishkarsh Singhal\\ Anuj Chaubey\\ Vardhan Harsh Nigam
+\end{tabular}
+
+% ---------------------------------------------------------------- lists
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\texorpdfstring{\textit{List of Figures}}{List of Figures}}
+{\singlespacing\listoffigures}
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\texorpdfstring{\textit{List of Tables}}{List of Tables}}
+{\singlespacing\listoftables}
+
+% ---------------------------------------------------------------- definitions, acronyms and abbreviations
+\frontchapter{Definitions, Acronyms and Abbreviations}
+{\singlespacing\footnotesize
+\begin{longtable}{@{}L{3.0cm}L{12.0cm}@{}}
+\toprule
+\textbf{Term} & \textbf{Meaning} \\
+\midrule
+\endhead
+2.5D & input made of a few neighbouring slices stacked as the channels of one 2D image \\
+ACL / MCL & anterior cruciate ligament / medial collateral ligament \\
+Ablation & an experiment that changes one part of a system to measure that part's effect \\
+AdamW & Adam optimiser with decoupled weight decay \\
+AUC, ROC-AUC & area under the receiver operating characteristic curve \\
+AWQ & activation-aware weight quantisation, a 4-bit format for language-model weights \\
+Baker's cyst & fluid-filled (popliteal) cyst behind the knee \\
+bfloat16, fp16, fp32 & 16-bit brain floating point, 16-bit and 32-bit IEEE floating point \\
+CI & confidence interval (95\% unless stated otherwise) \\
+CNN & convolutional neural network \\
+DDP & distributed data parallel (training on several GPUs) \\
+DICOM & Digital Imaging and Communications in Medicine, the file format of medical images \\
+Drop-path & regularisation that randomly skips residual blocks of a network during training \\
+EMA & exponential moving average of the network weights \\
+FiLM & feature-wise linear modulation: scaling and shifting features according to side information \\
+FS & fluid-sensitive (fat-suppressed) MRI sequence \\
+Feature pyramid & network part that combines feature maps of several resolutions from coarse to fine \\
+Gold-58 & the 58 training studies with expert labels for all twelve findings \\
+Fold, held-out fold & one of five disjoint subsets of the report-labelled studies; a fold left out of training and used for validation. \emph{Our fold~0} (Stages 3 and 5) and \emph{the published fold~0} (box-pooling models) are different sets of 870 studies \\
+Image-read labels & labels made by reading the images (here by LLM agents of other teams), as opposed to labels taken from the report \\
+In-sample & measured on the same data that was used to fit or choose something, and therefore optimistic \\
+KV cache & key--value cache: stored intermediate results of a language model for text it has already read \\
+Late submission & a submission scored after the competition closed; it receives a score but no rank \\
+Logit & score of a finding before the sigmoid function turns it into a probability \\
+JSON, NDJSON & JavaScript Object Notation; newline-delimited JSON \\
+LB & leaderboard (public: part of the hidden test set; private: the rest, revealed at the end) \\
+LLM & large language model \\
+MIL & multiple-instance learning \\
+MRI & magnetic resonance imaging \\
+NF4 & 4-bit NormalFloat weight quantisation \\
+OA, PF OA & osteoarthritis; patellofemoral osteoarthritis \\
+OAI & Osteoarthritis Initiative (public knee cohort study) \\
+ROI & region of interest \\
+Seed & number that fixes the random initialisation, data order and augmentation of a training run \\
+Soft label & a training target between 0 and 1 instead of exactly 0 or 1 \\
+Spearman correlation & correlation between the ranks of two sets of values \\
+T (field strength) & tesla \\
+TensorRT & NVIDIA library that compiles a trained network for faster inference \\
+TTA & test-time augmentation (averaging predictions over transformed inputs) \\
+vLLM & open-source serving engine for large language models \\
+VRAM & memory on the graphics card \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Names of label sets, runs and submissions}} \\
+\midrule
+P1, P2 & two report-derived label sets published by other participants during the competition \\
+E0, E1, E1p, \dots & training runs of our 2.5D model (E0: frozen-feature design; E1: reference run; E1p: with the slice-position fix; E9: higher resolution) \\
+F1--F3 & the three final models of Stage 3, trained on all report-labelled studies \\
+A0, A1, A2, C1--C3 & box-pooling runs of Stage 5 (Table~\ref{tab:bpruns}) \\
+CoAtNet, S6, s6fall, R6 & public models used in Stage 4 (Table~\ref{tab:public}) \\
+A-strict, final-strict, final-max & names of our Stage 4 submissions (Table~\ref{tab:endgame}) \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Notation}} \\
+\midrule
+$y_{ik}$ & training label of study $i$ for finding $k$, a number in $[0,1]$ \\
+$\hat p_{ik}$ & predicted probability of finding $k$ in study $i$ \\
+$z_k$, $\sigma(\cdot)$ & logit of finding $k$; logistic (sigmoid) function \\
+$S$ & macro AUC over the twelve findings (Equation~\ref{eq:macroauc}) \\
+$\mathbf t_j$, $\alpha_{k,j}$ & token of window $j$; attention weight of finding $k$ on window $j$ \\
+$\phi$ & soft score of the forced-choice labeller (Equation~\ref{eq:s0}) \\
+$\mu_r$, $g$ & centre slice of window $r$; slice step inside a window \\
+$\mathbf f_{n,c}$, $w_{k,n,c}$ & feature of cell $c$ on slice $n$; box-pooling weight of that cell for finding $k$ \\
+$s$ & attention sharpening factor applied at inference \\
+$\Delta$, $R$ & paired difference in macro AUC between two models; number of bootstrap resamples \\
+\multicolumn{2}{@{}l}{Indices: $i$ study, $k$ finding, $j$ window token, $n$ slice, $c$ feature cell.} \\
+\bottomrule
+\end{longtable}}
+
+% ---------------------------------------------------------------- contents (after the lists, as the guidelines require)
+\cleardoublepage
+{\singlespacing\tableofcontents}

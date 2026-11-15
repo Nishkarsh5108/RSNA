@@ -1,0 +1,26 @@
+% ======================================================================
+\chapter[CONCLUSION AND FUTURE SCOPE]{Conclusion and Future Scope}
+\label{ch:conclusion}
+% ======================================================================
+
+\section{Conclusion}
+
+This project built a deep learning system that reads a complete knee MRI study and estimates the probability of twelve abnormalities, trained on data in which only 58 of 4,407 studies had expert labels. It covered all seven objectives of Section~\ref{sec:objectives}.
+
+Our own pipeline turned multilingual reports into soft labels with a locally run language model (gold agreement 0.868 alone, 0.890 when averaged with two public label sets) and trained a fine-tuned 2.5D multiple-instance network on them. It improved on the frozen-feature design from 0.775 to 0.927 on the public leaderboard (0.755 to 0.916 private). In the final week we built, tested and re-engineered ensembles around the strongest public models, after tracing their training data, and reached 0.958 public and 0.943 private, inside the bronze-medal range; the pick that scored 0.943 contains a model trained with an auxiliary task on fastMRI+ data.
+
+The most useful finding came after the competition. By changing only the label file, we showed that our model was limited more by its labels than by its design, since image-read labels raised its gold-58 score from 0.891 to 0.928. Retraining the winning team's published pipeline reproduced its published score, and training it on the mean of two image-read label sets gave 0.958 on the private leaderboard, against 0.960 for the winning team. We also learned to distrust small gains measured on 58 studies. The fastMRI-free blend whose weights were fitted on gold-58 scored 0.935 private, below the 0.940 of the blend it extended.
+
+The local workstation runs all eight networks on a 6~GB laptop GPU, matches our Kaggle inference script to within $1.6\times10^{-4}$, and shows for each model an exact breakdown of its score over image regions. The system remains a research prototype. Its labels are estimates, and it has not been tested on data from other hospitals.
+
+\section{Future Scope}
+
+\begin{itemize}[leftmargin=1.4em]
+\item \textbf{Score the pre-registered ensemble.} The six-model ensemble fixed before the last folds were trained has not yet been scored on the private leaderboard. Fixing its notebook and submitting it is the first step.
+\item \textbf{Better labels.} Labels were the largest lever in this project. Labels from a vision--language model that reads the images as well as the report could be produced locally and fused with the published sets, and expert semi-quantitative grades such as MOAKS \cite{hunter2011moaks} from the OAI could supervise the osteoarthritis findings directly.
+\item \textbf{Teacher--student training.} Out-of-fold predictions of the current models could be mixed with the labels and used to train a new generation of models, in the manner of noisy-student training \cite{xie2020noisystudent}.
+\item \textbf{Combining planes.} Both models average evidence across planes. A model that relates the same anatomy in the sagittal, coronal and axial series could help findings such as meniscal tears that are judged on two planes together.
+\item \textbf{Weak findings.} Lateral OA and bone contusion remain weaker in the box-pooling ensemble than in our Stage~3 model, and lateral meniscal tears are weak in both; these deserve targeted study.
+\item \textbf{External validation.} Testing on studies from hospitals and scanners not seen in training, and reader studies with radiologists, would be required before any clinical use.
+\item \textbf{Efficiency.} Compiling the networks with an inference engine and reading DICOM files faster would cut the run time, which matters both for clinical use and for the competition's efficiency track.
+\end{itemize}

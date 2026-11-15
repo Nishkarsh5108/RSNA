@@ -1113,3 +1113,6 @@
 .sw-cell.white {
   background: rgba(242, 241, 236, 0.6);
 }
+.mini-row.as-btn.on .mr-k {
+  color: var(--accent);
+}

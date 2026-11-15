@@ -225,8 +225,12 @@ export const api = {
     const { header, buffer, offset } = await api.packed(`/api/studies/${sid}/series/${uid}/explain`);
     const [d, k, h, w] = header.shape as number[];
     const n = d * k * h * w;
-    const at = (i: number) => new Float32Array(buffer, offset + i * n * 4, n);
-    return { d, k, h, w, share: at(0), contrib: at(1), boxWeight: at(2) };
+    const names = header.arrays as string[];
+    const at = (name: string) => {
+      const i = names.indexOf(name);
+      return i < 0 ? null : new Float32Array(buffer, offset + i * n * 4, n);
+    };
+    return { d, k, h, w, share: at("share")!, contrib: at("contrib")!, boxWeight: at("boxWeight")!, lesion: at("lesion") };
   },
 
   /** Runs inference; calls onEvent for every pipeline step as the GPU produces it (newline-delimited JSON). */

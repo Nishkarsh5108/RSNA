@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { PipelineEvent } from "../lib/api";
 import { FINDINGS } from "../lib/findings";
 import { Scene3D, type SceneBox, type SceneState, type SeriesView } from "./Scene3D";
-import { boxSlices, getState, pipelineView, setState, useStore, type PipelineView, type State } from "./store";
+import { boxSlices, getState, overlayMap, pipelineView, setState, useStore, type PipelineView, type State } from "./store";
 
 /** Box z (detector convention) -> the unit cube's w over the slices the classifier actually includes. */
 function boxToUnit(b: number[], native: number): number[] {
@@ -18,10 +18,10 @@ function buildScene(s: State, view: PipelineView, replaying: boolean, cut: boole
   const live = s.run.state === "running" || replaying;
   const f = s.finding;
   // global maximum of the shown quantity for the selected finding, so series compare honestly
-  let gmax = 1e-9;
-  if (f !== null && !live) {
+  let gmax = s.overlay === "lesion" ? 1 : 1e-9; // lesion head: absolute probability
+  if (f !== null && !live && s.overlay !== "lesion") {
     for (const ex of Object.values(s.explain)) {
-      const src = s.overlay === "attention" ? ex.share : ex.contrib;
+      const src = overlayMap(ex, s.overlay) ?? ex.contrib;
       const cells = ex.h * ex.w;
       for (let k = 0; k < ex.d; k++) for (let i = 0; i < cells; i++) gmax = Math.max(gmax, src[(k * ex.k + f) * cells + i]);
     }
@@ -68,17 +68,18 @@ function buildScene(s: State, view: PipelineView, replaying: boolean, cut: boole
     const ex = s.explain[uid];
     // evidence is drawn for one series at a time (the active one, or the one being processed), never stacked
     const showCells = f !== null && ex && res?.crop && (live ? focus && view.ev?.kind === "series" : uid === s.active);
-    if (showCells && s.overlay !== "box") {
-      const src = s.overlay === "attention" ? ex.share : ex.contrib;
+    if (showCells && s.overlay !== "box" && overlayMap(ex, s.overlay)) {
+      const src = overlayMap(ex, s.overlay)!;
       const n = ex.h * ex.w;
       const alpha = new Float32Array(ex.d * n);
       let lmax = 1e-9;
-      if (live) for (let k = 0; k < ex.d; k++) for (let i = 0; i < n; i++) lmax = Math.max(lmax, src[(k * ex.k + f!) * n + i]);
+      if (live && s.overlay !== "lesion") for (let k = 0; k < ex.d; k++) for (let i = 0; i < n; i++) lmax = Math.max(lmax, src[(k * ex.k + f!) * n + i]);
+      if (s.overlay === "lesion") lmax = 1;
       const norm = live ? lmax : gmax;
       for (let k = 0; k < ex.d; k++)
         for (let i = 0; i < n; i++) {
           const v = src[(k * ex.k + f!) * n + i] / norm;
-          alpha[k * n + i] = v > 0.06 ? 0.62 * Math.pow(v, 1.35) : 0;
+          alpha[k * n + i] = s.overlay === "lesion" ? (v > 0.06 ? 0.75 * Math.pow(v, 0.8) : 0) : v > 0.06 ? 0.62 * Math.pow(v, 1.35) : 0;
         }
       cells = { u0: res!.crop![0], v0: res!.crop![1], u1: res!.crop![2], v1: res!.crop![3], ws, alpha, h: ex.h, w: ex.w };
     }
@@ -247,7 +248,12 @@ export default function Viewport3D() {
           <span className="sw sw-box" /> {FINDINGS[full.finding].short} ROI box
           {full.overlay !== "box" && (
             <>
-              <span className={`sw sw-cell ${full.overlay === "attention" ? "white" : ""}`} /> {full.overlay === "evidence" ? "positive evidence per feature cell (14 mm)" : "pooling weight per feature cell (14 mm)"}
+              <span className={`sw sw-cell ${full.overlay === "attention" ? "white" : ""}`} />{" "}
+              {full.overlay === "evidence"
+                ? "positive evidence per feature cell (14 mm)"
+                : full.overlay === "attention"
+                  ? "pooling weight per feature cell (14 mm)"
+                  : "lesion head: predicted lesion coverage per cell (14 mm)"}
             </>
           )}
         </div>

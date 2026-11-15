@@ -17,8 +17,9 @@ export interface Explain {
   share: Float32Array;
   contrib: Float32Array;
   boxWeight: Float32Array;
+  lesion: Float32Array | null; // lesion head: P(cell covered by a lesion of the finding); not part of the logit
 }
-export type Overlay = "evidence" | "attention" | "box";
+export type Overlay = "evidence" | "attention" | "lesion" | "box";
 export type Layout = "quad" | "focus3d";
 export type RenderMode = "dvr" | "mip" | "slices";
 
@@ -138,20 +139,49 @@ export function boxSlices(box: number[], native: number): [number, number] | nul
   return lo < 0 ? null : [pos(lo), pos(hi)];
 }
 
-/** Per classifier slice: summed positive contribution and share for one finding. */
+/** Per classifier slice: summed positive contribution, share and lesion-head coverage for one finding. */
 export function sliceProfile(ex: Explain, f: number) {
   const cells = ex.h * ex.w;
   const pos = new Float32Array(ex.d);
   const share = new Float32Array(ex.d);
+  const lesion = new Float32Array(ex.d);
   for (let s = 0; s < ex.d; s++) {
     const base = (s * ex.k + f) * cells;
     for (let c = 0; c < cells; c++) {
       const v = ex.contrib[base + c];
       if (v > 0) pos[s] += v;
       share[s] += ex.share[base + c];
+      if (ex.lesion) lesion[s] += ex.lesion[base + c];
     }
   }
-  return { pos, share };
+  return { pos, share, lesion };
+}
+
+/** The per-cell map an overlay shows (null for "box"). */
+export function overlayMap(ex: Explain, overlay: Overlay): Float32Array | null {
+  return overlay === "evidence" ? ex.contrib : overlay === "attention" ? ex.share : overlay === "lesion" ? ex.lesion : null;
+}
+
+/** Per classifier slice: the total of the shown map (evidence: positive contributions only). */
+export function overlayProfile(ex: Explain, f: number, overlay: Overlay): Float32Array {
+  const p = sliceProfile(ex, f);
+  return overlay === "attention" ? p.share : overlay === "lesion" ? p.lesion : p.pos;
+}
+
+/** The slices (classifier index) holding most of the shown map, largest first, with their share of the total. */
+export function peakSlices(ex: Explain, f: number, overlay: Overlay, n = 3) {
+  const prof = overlayProfile(ex, f, overlay);
+  const total = prof.reduce((a, b) => a + b, 0) || 1;
+  return Array.from(prof, (v, k) => ({ k, v, frac: v / total }))
+    .filter((x) => x.v > 0)
+    .sort((a, b) => b.v - a.v)
+    .slice(0, n);
+}
+
+export function setOverlay(overlay: Overlay) {
+  setState({ overlay });
+  const f = getState().finding;
+  if (f !== null && getState().run.summary) selectFinding(f); // jump to the peak of the map now shown
 }
 
 // ------------------------------------------------------------------------------------------- actions
@@ -345,7 +375,7 @@ export function selectFinding(f: number | null) {
     if (!r.probs || !r.slicePos) continue;
     if (!best || score(uid, r.probs[f]) > score(best.uid, best.p)) best = { uid, p: r.probs[f] };
     if (ex) {
-      const { pos } = sliceProfile(ex, f);
+      const pos = overlayProfile(ex, f, s.overlay === "box" ? "evidence" : s.overlay);
       let k = 0;
       for (let i = 1; i < pos.length; i++) if (pos[i] > pos[k]) k = i;
       slice[uid] = Math.round(r.slicePos[k]);
@@ -363,13 +393,15 @@ export function selectFinding(f: number | null) {
     const ex = s.explain[best.uid];
     if (g && ex) {
       const r = sum.series[best.uid];
-      const { pos } = sliceProfile(ex, f);
+      const shown = s.overlay === "box" ? "evidence" : s.overlay;
+      const pos = overlayProfile(ex, f, shown);
+      const map = overlayMap(ex, shown) ?? ex.contrib;
       let k = 0;
       for (let i = 1; i < pos.length; i++) if (pos[i] > pos[k]) k = i;
       const cells = ex.h * ex.w;
       const base = (k * ex.k + f) * cells;
       let c = 0;
-      for (let i = 1; i < cells; i++) if (ex.contrib[base + i] > ex.contrib[base + c]) c = i;
+      for (let i = 1; i < cells; i++) if (map[base + i] > map[base + c]) c = i;
       const [x0, y0, x1, y1] = r.crop!;
       const u = x0 + ((c % ex.w) + 0.5) / ex.w * (x1 - x0);
       const v = y0 + (Math.floor(c / ex.w) + 0.5) / ex.h * (y1 - y0);

@@ -1,0 +1,289 @@
+model,reference,s,finding,delta
+A0,1st-place labels,0.5,ACL,-0.00163899756793906
+A0,1st-place labels,0.5,MCL,-0.003912363067292701
+A0,1st-place labels,0.5,Medial Meniscus,-0.001186933106576027
+A0,1st-place labels,0.5,Lateral Meniscus,-0.0044691818381223936
+A0,1st-place labels,0.5,Medial OA,-0.009904115105408118
+A0,1st-place labels,0.5,Lateral OA,-0.009410081443979812
+A0,1st-place labels,0.5,PF OA,-0.008217675521234091
+A0,1st-place labels,0.5,Effusion,-0.0032955047899778656
+A0,1st-place labels,0.5,Synovitis,-0.005035238029434064
+A0,1st-place labels,0.5,Baker's,0.0009113808685966562
+A0,1st-place labels,0.5,Contusion,-0.0381273052419806
+A0,1st-place labels,0.5,Fracture,-0.023190164626424647
+A0,1st-place labels,1.0,ACL,0.0
+A0,1st-place labels,1.0,MCL,0.0
+A0,1st-place labels,1.0,Medial Meniscus,0.0
+A0,1st-place labels,1.0,Lateral Meniscus,0.0
+A0,1st-place labels,1.0,Medial OA,0.0
+A0,1st-place labels,1.0,Lateral OA,0.0
+A0,1st-place labels,1.0,PF OA,0.0
+A0,1st-place labels,1.0,Effusion,0.0
+A0,1st-place labels,1.0,Synovitis,0.0
+A0,1st-place labels,1.0,Baker's,0.0
+A0,1st-place labels,1.0,Contusion,0.0
+A0,1st-place labels,1.0,Fracture,0.0
+A0,1st-place labels,1.25,ACL,0.00014539494554299814
+A0,1st-place labels,1.25,MCL,0.0002608242044861431
+A0,1st-place labels,1.25,Medial Meniscus,-0.0001771541950114086
+A0,1st-place labels,1.25,Lateral Meniscus,0.00027418293485415024
+A0,1st-place labels,1.25,Medial OA,0.002329099596216855
+A0,1st-place labels,1.25,Lateral OA,0.002173673783843255
+A0,1st-place labels,1.25,PF OA,-0.00011499438296669329
+A0,1st-place labels,1.25,Effusion,-0.0003714075165807129
+A0,1st-place labels,1.25,Synovitis,-0.000837766876252255
+A0,1st-place labels,1.25,Baker's,-0.00030379362286547806
+A0,1st-place labels,1.25,Contusion,0.0042472337096233215
+A0,1st-place labels,1.25,Fracture,0.0006331785563529202
+A0,1st-place labels,1.5,ACL,-0.00022470127947549212
+A0,1st-place labels,1.5,MCL,0.0
+A0,1st-place labels,1.5,Medial Meniscus,-0.0002716364323507303
+A0,1st-place labels,1.5,Lateral Meniscus,0.0003153103750822561
+A0,1st-place labels,1.5,Medial OA,0.003711322253784788
+A0,1st-place labels,1.5,Lateral OA,0.0031642086726831886
+A0,1st-place labels,1.5,PF OA,-0.0006192005236667075
+A0,1st-place labels,1.5,Effusion,-0.0011436993367722748
+A0,1st-place labels,1.5,Synovitis,-0.002729219926760118
+A0,1st-place labels,1.5,Baker's,-0.0010632776800293398
+A0,1st-place labels,1.5,Contusion,0.004149435564993809
+A0,1st-place labels,1.5,Fracture,-0.00021105951878430673
+A0,1st-place labels,2.0,ACL,-0.0008459342286136762
+A0,1st-place labels,2.0,MCL,-0.0006520605112154687
+A0,1st-place labels,2.0,Medial Meniscus,-0.0007794784580499314
+A0,1st-place labels,2.0,Lateral Meniscus,-0.0016588067558674924
+A0,1st-place labels,2.0,Medial OA,0.003504533037298252
+A0,1st-place labels,2.0,Lateral OA,0.004457406999779923
+A0,1st-place labels,2.0,PF OA,-0.0017956815186335184
+A0,1st-place labels,2.0,Effusion,-0.00368459837877666
+A0,1st-place labels,2.0,Synovitis,-0.008386305534443417
+A0,1st-place labels,2.0,Baker's,-0.0022025037657751323
+A0,1st-place labels,2.0,Contusion,0.0020118475466636143
+A0,1st-place labels,2.0,Fracture,-0.0010289151540734398
+A0,1st-place labels,3.0,ACL,-0.0013878608438193663
+A0,1st-place labels,3.0,MCL,-0.0010432968179447943
+A0,1st-place labels,3.0,Medial Meniscus,-0.0022616685563114913
+A0,1st-place labels,3.0,Lateral Meniscus,-0.0048530379469181595
+A0,1st-place labels,3.0,Medial OA,0.0014366408724327817
+A0,1st-place labels,3.0,Lateral OA,0.002944089808496586
+A0,1st-place labels,3.0,PF OA,-0.004812072641067089
+A0,1st-place labels,3.0,Effusion,-0.008047162859248336
+A0,1st-place labels,3.0,Synovitis,-0.022498790851931183
+A0,1st-place labels,3.0,Baker's,-0.003405020189617858
+A0,1st-place labels,3.0,Contusion,-0.001928020565552746
+A0,1st-place labels,3.0,Fracture,-0.0026118615449556293
+A0,7th-place labels,0.5,ACL,-0.00029113555524606927
+A0,7th-place labels,0.5,MCL,-0.00676923076923075
+A0,7th-place labels,0.5,Medial Meniscus,-0.002862595419847347
+A0,7th-place labels,0.5,Lateral Meniscus,-0.00869999999999993
+A0,7th-place labels,0.5,Medial OA,-0.005266445110996276
+A0,7th-place labels,0.5,Lateral OA,-0.012476749775334861
+A0,7th-place labels,0.5,PF OA,-0.015555241149468602
+A0,7th-place labels,0.5,Effusion,-0.00509637674073482
+A0,7th-place labels,0.5,Synovitis,-0.013363738660240432
+A0,7th-place labels,0.5,Baker's,0.0004492855264311979
+A0,7th-place labels,0.5,Contusion,-0.024046091676558023
+A0,7th-place labels,0.5,Fracture,-0.015486340699495393
+A0,7th-place labels,1.0,ACL,0.0
+A0,7th-place labels,1.0,MCL,0.0
+A0,7th-place labels,1.0,Medial Meniscus,0.0
+A0,7th-place labels,1.0,Lateral Meniscus,0.0
+A0,7th-place labels,1.0,Medial OA,0.0
+A0,7th-place labels,1.0,Lateral OA,0.0
+A0,7th-place labels,1.0,PF OA,0.0
+A0,7th-place labels,1.0,Effusion,0.0
+A0,7th-place labels,1.0,Synovitis,0.0
+A0,7th-place labels,1.0,Baker's,0.0
+A0,7th-place labels,1.0,Contusion,0.0
+A0,7th-place labels,1.0,Fracture,0.0
+A0,7th-place labels,1.25,ACL,3.797420285822639e-05
+A0,7th-place labels,1.25,MCL,0.0004733727810650734
+A0,7th-place labels,1.25,Medial Meniscus,0.0002923266999073082
+A0,7th-place labels,1.25,Lateral Meniscus,0.0017444444444445484
+A0,7th-place labels,1.25,Medial OA,0.0001465043295885149
+A0,7th-place labels,1.25,Lateral OA,0.0011494493092855107
+A0,7th-place labels,1.25,PF OA,0.00042444821731757454
+A0,7th-place labels,1.25,Effusion,0.0005176906395779612
+A0,7th-place labels,1.25,Synovitis,0.002389938359506516
+A0,7th-place labels,1.25,Baker's,-0.00035066187428767215
+A0,7th-place labels,1.25,Contusion,0.00038676464704390234
+A0,7th-place labels,1.25,Fracture,-0.002262049765094809
+A0,7th-place labels,1.5,ACL,5.063227047763519e-05
+A0,7th-place labels,1.5,MCL,0.0006153846153846843
+A0,7th-place labels,1.5,Medial Meniscus,0.0004136698583594445
+A0,7th-place labels,1.5,Lateral Meniscus,0.002677777777777779
+A0,7th-place labels,1.5,Medial OA,-0.0006862571228091197
+A0,7th-place labels,1.5,Lateral OA,0.00012539447010384563
+A0,7th-place labels,1.5,PF OA,-0.0005816512607683677
+A0,7th-place labels,1.5,Effusion,0.000661493595016327
+A0,7th-place labels,1.5,Synovitis,0.0019517829935969955
+A0,7th-place labels,1.5,Baker's,-0.0006903655650039031
+A0,7th-place labels,1.5,Contusion,-0.001160293941131707
+A0,7th-place labels,1.5,Fracture,-0.005145541773347584
+A0,7th-place labels,2.0,ACL,-6.329033809693296e-05
+A0,7th-place labels,2.0,MCL,0.0003313609467455736
+A0,7th-place labels,2.0,Medial Meniscus,4.964038300314666e-05
+A0,7th-place labels,2.0,Lateral Meniscus,0.002788888888888952
+A0,7th-place labels,2.0,Medial OA,-0.0031845414800021343
+A0,7th-place labels,2.0,Lateral OA,-0.002382494931973511
+A0,7th-place labels,2.0,PF OA,-0.0034191661950575547
+A0,7th-place labels,2.0,Effusion,0.00023583684691885765
+A0,7th-place labels,2.0,Synovitis,-0.002290357594527004
+A0,7th-place labels,2.0,Baker's,-0.0017423511878670306
+A0,7th-place labels,2.0,Contusion,-0.005588082314186282
+A0,7th-place labels,2.0,Fracture,-0.008774764473389762
+A0,7th-place labels,3.0,ACL,-0.00030379362286547806
+A0,7th-place labels,3.0,MCL,-0.0002366863905325367
+A0,7th-place labels,3.0,Medial Meniscus,-0.0004688258394740519
+A0,7th-place labels,3.0,Lateral Meniscus,0.0010444444444445145
+A0,7th-place labels,3.0,Medial OA,-0.007325216479423857
+A0,7th-place labels,3.0,Lateral OA,-0.007941649773244963
+A0,7th-place labels,3.0,PF OA,-0.008449663585486933
+A0,7th-place labels,3.0,Effusion,-0.0011101588159839748
+A0,7th-place labels,3.0,Synovitis,-0.01542506049531478
+A0,7th-place labels,3.0,Baker's,-0.003309371438590336
+A0,7th-place labels,3.0,Contusion,-0.013016630879822855
+A0,7th-place labels,3.0,Fracture,-0.012478560242610959
+A1,1st-place labels,0.5,ACL,-0.00040974939198479277
+A1,1st-place labels,0.5,MCL,-0.0027386541471048353
+A1,1st-place labels,0.5,Medial Meniscus,-0.0014349489795918435
+A1,1st-place labels,0.5,Lateral Meniscus,-0.000699166483878022
+A1,1st-place labels,0.5,Medial OA,-0.0055615415591907524
+A1,1st-place labels,0.5,Lateral OA,-0.007896764252696475
+A1,1st-place labels,0.5,PF OA,-0.0027156365823669537
+A1,1st-place labels,0.5,Effusion,-0.003938098747236496
+A1,1st-place labels,0.5,Synovitis,-0.004542942029986841
+A1,1st-place labels,0.5,Baker's,0.0009113808685965452
+A1,1st-place labels,0.5,Contusion,-0.02253548675533701
+A1,1st-place labels,0.5,Fracture,-0.0219501899535669
+A1,1st-place labels,1.0,ACL,0.0
+A1,1st-place labels,1.0,MCL,0.0
+A1,1st-place labels,1.0,Medial Meniscus,0.0
+A1,1st-place labels,1.0,Lateral Meniscus,0.0
+A1,1st-place labels,1.0,Medial OA,0.0
+A1,1st-place labels,1.0,Lateral OA,0.0
+A1,1st-place labels,1.0,PF OA,0.0
+A1,1st-place labels,1.0,Effusion,0.0
+A1,1st-place labels,1.0,Synovitis,0.0
+A1,1st-place labels,1.0,Baker's,0.0
+A1,1st-place labels,1.0,Contusion,0.0
+A1,1st-place labels,1.0,Fracture,0.0
+A1,1st-place labels,1.25,ACL,-0.00023791900179759295
+A1,1st-place labels,1.25,MCL,0.0
+A1,1st-place labels,1.25,Medial Meniscus,-0.00016534391534395176
+A1,1st-place labels,1.25,Lateral Meniscus,-0.0006717481903926181
+A1,1st-place labels,1.25,Medial OA,0.0012733862278381247
+A1,1st-place labels,1.25,Lateral OA,0.0013207131851199483
+A1,1st-place labels,1.25,PF OA,-0.0008403435678334681
+A1,1st-place labels,1.25,Effusion,0.00017096536477523294
+A1,1st-place labels,1.25,Synovitis,-0.0006132108063290342
+A1,1st-place labels,1.25,Baker's,-0.0007215098543056353
+A1,1st-place labels,1.25,Contusion,0.0015088856599977385
+A1,1st-place labels,1.25,Fracture,0.0022688898269311863
+A1,1st-place labels,1.5,ACL,-0.0007666278946811822
+A1,1st-place labels,1.5,MCL,0.0
+A1,1st-place labels,1.5,Medial Meniscus,-0.0004960317460317443
+A1,1st-place labels,1.5,Lateral Meniscus,-0.0013572055275279382
+A1,1st-place labels,1.5,Medial OA,0.002122310379730319
+A1,1st-place labels,1.5,Lateral OA,0.0016233766233766378
+A1,1st-place labels,1.5,PF OA,-0.002344116268166885
+A1,1st-place labels,1.5,Effusion,-0.00028887251289611005
+A1,1st-place labels,1.5,Synovitis,-0.0023751122780348854
+A1,1st-place labels,1.5,Baker's,-0.0015696003848052476
+A1,1st-place labels,1.5,Contusion,0.001117693081479798
+A1,1st-place labels,1.5,Fracture,0.002321654706627263
+A1,1st-place labels,2.0,ACL,-0.0014671671777519713
+A1,1st-place labels,2.0,MCL,-0.000717266562336949
+A1,1st-place labels,2.0,Medial Meniscus,-0.001181027966742243
+A1,1st-place labels,2.0,Lateral Meniscus,-0.003523250712875625
+A1,1st-place labels,2.0,Medial OA,0.0021005430937843794
+A1,1st-place labels,2.0,Lateral OA,0.0011556240369799964
+A1,1st-place labels,2.0,PF OA,-0.00471476970163387
+A1,1st-place labels,2.0,Effusion,-0.0017803979366248779
+A1,1st-place labels,2.0,Synovitis,-0.009725005182063096
+A1,1st-place labels,2.0,Baker's,-0.002848065214364426
+A1,1st-place labels,2.0,Contusion,-0.0016765396222198081
+A1,1st-place labels,2.0,Fracture,0.0016357112705782662
+A1,1st-place labels,3.0,ACL,-0.002643544464417946
+A1,1st-place labels,3.0,MCL,-0.0016301512780385607
+A1,1st-place labels,3.0,Medial Meniscus,-0.002515589569160981
+A1,1st-place labels,3.0,Lateral Meniscus,-0.007471484974775122
+A1,1st-place labels,3.0,Medial OA,0.0001959055735135662
+A1,1st-place labels,3.0,Lateral OA,-0.0011556240369799964
+A1,1st-place labels,3.0,PF OA,-0.009305699298534309
+A1,1st-place labels,3.0,Effusion,-0.004610169491525373
+A1,1st-place labels,3.0,Synovitis,-0.031187383403579072
+A1,1st-place labels,3.0,Baker's,-0.004974620574423105
+A1,1st-place labels,3.0,Contusion,-0.005798032860176661
+A1,1st-place labels,3.0,Fracture,-0.0008970029548333036
+A1,7th-place labels,0.5,ACL,-0.00029113555524606927
+A1,7th-place labels,0.5,MCL,-0.003266272189349051
+A1,7th-place labels,0.5,Medial Meniscus,-0.0009872920619512504
+A1,7th-place labels,0.5,Lateral Meniscus,-0.0032222222222222374
+A1,7th-place labels,0.5,Medial OA,-0.002883822066636288
+A1,7th-place labels,0.5,Lateral OA,-0.00850592488871238
+A1,7th-place labels,0.5,PF OA,-0.007710809281267661
+A1,7th-place labels,0.5,Effusion,-0.003997722161185879
+A1,7th-place labels,0.5,Synovitis,-0.005108493243445089
+A1,7th-place labels,0.5,Baker's,6.574910142898016e-05
+A1,7th-place labels,0.5,Contusion,-0.013976874141449214
+A1,7th-place labels,0.5,Fracture,-0.011285391135747891
+A1,7th-place labels,1.0,ACL,0.0
+A1,7th-place labels,1.0,MCL,0.0
+A1,7th-place labels,1.0,Medial Meniscus,0.0
+A1,7th-place labels,1.0,Lateral Meniscus,0.0
+A1,7th-place labels,1.0,Medial OA,0.0
+A1,7th-place labels,1.0,Lateral OA,0.0
+A1,7th-place labels,1.0,PF OA,0.0
+A1,7th-place labels,1.0,Effusion,0.0
+A1,7th-place labels,1.0,Synovitis,0.0
+A1,7th-place labels,1.0,Baker's,0.0
+A1,7th-place labels,1.0,Contusion,0.0
+A1,7th-place labels,1.0,Fracture,0.0
+A1,7th-place labels,1.25,ACL,8.860647333586158e-05
+A1,7th-place labels,1.25,MCL,0.00028402366863911066
+A1,7th-place labels,1.25,Medial Meniscus,5.51559811146074e-06
+A1,7th-place labels,1.25,Lateral Meniscus,0.00032222222222222374
+A1,7th-place labels,1.25,Medial OA,0.00012337206702195402
+A1,7th-place labels,1.25,Lateral OA,0.0012539447010386784
+A1,7th-place labels,1.25,PF OA,0.0004873294346978696
+A1,7th-place labels,1.25,Effusion,0.0003048622655292821
+A1,7th-place labels,1.25,Synovitis,0.00031865844793421694
+A1,7th-place labels,1.25,Baker's,-0.00037257824143066554
+A1,7th-place labels,1.25,Contusion,0.0007601925821207889
+A1,7th-place labels,1.25,Fracture,-0.0003728653458947573
+A1,7th-place labels,1.5,ACL,0.00015189681143279454
+A1,7th-place labels,1.5,MCL,-0.0002366863905325367
+A1,7th-place labels,1.5,Medial Meniscus,-4.964038300314666e-05
+A1,7th-place labels,1.5,Lateral Meniscus,0.0003666666666666263
+A1,7th-place labels,1.5,Medial OA,-0.00023132262566594175
+A1,7th-place labels,1.5,Lateral OA,0.0008568622123764635
+A1,7th-place labels,1.5,PF OA,-0.00019650380431357473
+A1,7th-place labels,1.5,Effusion,0.00013805083722073785
+A1,7th-place labels,1.5,Synovitis,-0.0007667718903416887
+A1,7th-place labels,1.5,Baker's,-0.0008328219514333046
+A1,7th-place labels,1.5,Contusion,0.0002800709513076649
+A1,7th-place labels,1.5,Fracture,-0.0015163190733054055
+A1,7th-place labels,2.0,ACL,0.00017721294667161214
+A1,7th-place labels,2.0,MCL,-0.0013727810650887573
+A1,7th-place labels,2.0,Medial Meniscus,-0.00018753033578966516
+A1,7th-place labels,2.0,Lateral Meniscus,-0.00021111111111116188
+A1,7th-place labels,2.0,Medial OA,-0.001973953072349932
+A1,7th-place labels,2.0,Lateral OA,-0.0002507889402078023
+A1,7th-place labels,2.0,PF OA,-0.002884675847324325
+A1,7th-place labels,2.0,Effusion,-0.0005349469942306229
+A1,7th-place labels,2.0,Synovitis,-0.006432917417671602
+A1,7th-place labels,2.0,Baker's,-0.0016656439028667203
+A1,7th-place labels,2.0,Contusion,-0.0012536509249010397
+A1,7th-place labels,2.0,Fracture,-0.0033557881130528155
+A1,7th-place labels,3.0,ACL,0.0002405032847685451
+A1,7th-place labels,3.0,MCL,-0.003171597633136125
+A1,7th-place labels,3.0,Medial Meniscus,-0.000678418567709449
+A1,7th-place labels,3.0,Lateral Meniscus,-0.0018222222222222806
+A1,7th-place labels,3.0,Medial OA,-0.005644272066250733
+A1,7th-place labels,3.0,Lateral OA,-0.0022153023051684206
+A1,7th-place labels,3.0,PF OA,-0.007592906998679427
+A1,7th-place labels,3.0,Effusion,-0.0024043854149290445
+A1,7th-place labels,3.0,Synovitis,-0.02272433056830747
+A1,7th-place labels,3.0,Baker's,-0.0033312878057333295
+A1,7th-place labels,3.0,Contusion,-0.004161054133713926
+A1,7th-place labels,3.0,Fracture,-0.005344403291158151

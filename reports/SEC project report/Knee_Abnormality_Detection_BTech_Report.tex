@@ -1,0 +1,153 @@
+% B.Tech project report: Knee Abnormality Detection Using Deep Learning
+% Department of Electronics & Communication Engineering, Faculty of Technology, University of Delhi
+% Format: FOT ECE B.Tech project report guidelines (A4; Times 12 pt; double spacing; margins L 3.5 cm,
+% T 2.5 cm, R 1.25 cm, B 1.25 cm; captions Times italic 10 pt; tables Times 10 pt single spacing;
+% chapter titles bold capitals 16 pt centred; headings bold 14 pt; sub-headings bold 12 pt).
+% Compile: pdflatex (run three times so the contents, lists and cross-references settle).
+\documentclass[12pt,a4paper,oneside]{report}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{newtxtext,newtxmath}            % Times Roman text and maths
+\usepackage[british]{babel}
+\usepackage[a4paper,left=3.5cm,right=1.25cm,top=2.5cm,bottom=1.25cm,includefoot,footskip=0.9cm]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{booktabs,array,tabularx,multirow,makecell,longtable}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc,shapes.geometric,backgrounds}
+\usepackage{etoolbox}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage[font={footnotesize,it},labelfont={footnotesize,it},justification=centering,singlelinecheck=false,skip=6pt]{caption}
+\usepackage{float}
+\usepackage{cite}
+\renewcommand{\citepunct}{],\penalty\citepunctpenalty\ [}
+\renewcommand{\citedash}{]--[}
+\usepackage[hidelinks,bookmarksnumbered]{hyperref}
+\usepackage{xurl}
+\urlstyle{same}
+
+\graphicspath{{figures/}}
+
+% ---------------------------------------------------------------- line spacing
+\doublespacing
+% tables: Times 10 pt (\footnotesize in a 12 pt document), single spacing. A float resets the font size after
+% environment hooks run, so every table sets \footnotesize\setstretch{1} itself; longtable is not a float.
+\AtBeginEnvironment{longtable}{\footnotesize\setstretch{1}}
+\setlength{\tabcolsep}{4pt}
+% float pages start at the top instead of being centred vertically
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{14pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+\renewcommand{\floatpagefraction}{0.6}
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\textfraction}{0.12}
+\renewcommand{\arraystretch}{1.25}
+% captions: figure caption at the bottom, table caption at the top, both centred, italic 10 pt
+\captionsetup[table]{position=top}
+\captionsetup[figure]{position=bottom}
+\renewcommand{\figurename}{Figure}
+\renewcommand{\tablename}{Table}
+\captionsetup{labelsep=space}
+\DeclareCaptionLabelFormat{dotted}{#1 #2:}
+\captionsetup{labelformat=dotted}
+
+% ---------------------------------------------------------------- headings
+\titleformat{\chapter}[display]
+  {\centering\bfseries\fontsize{16}{20}\selectfont}
+  {CHAPTER \thechapter}{6pt}{\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-12pt}{24pt}
+\titleformat{\section}{\bfseries\fontsize{14}{17}\selectfont}{\thesection}{0.8em}{}
+\titleformat{\subsection}{\bfseries\fontsize{12}{14.5}\selectfont}{\thesubsection}{0.8em}{}
+\titleformat{\subsubsection}[runin]{\bfseries\fontsize{12}{14.5}\selectfont}{}{0pt}{}[.]
+\titlespacing*{\section}{0pt}{10pt}{4pt}
+\titlespacing*{\subsection}{0pt}{8pt}{2pt}
+\titlespacing*{\subsubsection}{0pt}{6pt}{0.6em}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+
+% unnumbered front-matter and back-matter titles in the chapter-title style
+\newcommand{\frontchapter}[1]{%
+  \chapter*{#1}\addcontentsline{toc}{chapter}{\texorpdfstring{\textit{#1}}{#1}}}
+\newcommand{\backchapter}[1]{%
+  \chapter*{#1}\addcontentsline{toc}{chapter}{#1}}
+
+% ---------------------------------------------------------------- contents and lists
+\addto\captionsbritish{%
+  \renewcommand{\contentsname}{CONTENTS}%
+  \renewcommand{\listfigurename}{LIST OF FIGURES}%
+  \renewcommand{\listtablename}{LIST OF TABLES}%
+  \renewcommand{\bibname}{REFERENCES}%
+  \renewcommand{\figurename}{Figure}%
+  \renewcommand{\tablename}{Table}}
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftchappagefont}{\bfseries}
+\renewcommand{\cftchappresnum}{CHAPTER~}
+\setlength{\cftchapnumwidth}{6.6em}
+\renewcommand{\cftfigpresnum}{Figure~}
+\renewcommand{\cfttabpresnum}{Table~}
+\setlength{\cftfignumwidth}{5.4em}
+\setlength{\cfttabnumwidth}{5.0em}
+\setlength{\cftbeforefigskip}{2pt}
+\setlength{\cftbeforetabskip}{2pt}
+\setlength{\cftbeforechapskip}{6pt}
+\renewcommand{\cftdotsep}{2}
+\setlength{\cftbeforetoctitleskip}{-12pt}
+\setlength{\cftbeforeloftitleskip}{-12pt}
+\setlength{\cftbeforelottitleskip}{-12pt}
+\renewcommand{\cfttoctitlefont}{\hfill\bfseries\fontsize{16}{20}\selectfont}
+\renewcommand{\cftaftertoctitle}{\hfill\hfill}
+\renewcommand{\cftloftitlefont}{\hfill\bfseries\fontsize{16}{20}\selectfont}
+\renewcommand{\cftafterloftitle}{\hfill\hfill}
+\renewcommand{\cftlottitlefont}{\hfill\bfseries\fontsize{16}{20}\selectfont}
+\renewcommand{\cftafterlottitle}{\hfill\hfill}
+
+% ---------------------------------------------------------------- lists and misc
+\setlist{itemsep=0pt,topsep=2pt,parsep=0pt,partopsep=0pt}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\auc}{\mbox{AUC}}
+\hyphenation{Conv-NeXt Efficient-Net Kaggle pre-processing}
+
+% TikZ styles shared by the block diagrams
+\tikzset{
+  blk/.style={draw=black!70, rounded corners=2pt, align=center, font=\footnotesize, inner sep=3pt, minimum height=8mm, fill=white, execute at begin node={\hyphenpenalty=10000\exhyphenpenalty=10000}},
+  data/.style={blk, fill=black!6},
+  ours/.style={blk, fill=blue!8, draw=blue!60!black},
+  pub/.style={blk, fill=orange!10, draw=orange!70!black},
+  arr/.style={-{Stealth[length=2.2mm]}, thick, draw=black!75},
+  lbl/.style={font=\scriptsize\itshape, text=black!75, align=center},
+}
+
+\begin{document}
+
+% ---------------------------------------------------------------- title page (no page number)
+\pagenumbering{alph}
+\input{chapters/00_titlepage}
+
+% ---------------------------------------------------------------- preliminary pages (roman numbers)
+\pagenumbering{roman}
+\setcounter{page}{1}
+\input{chapters/01_frontmatter}
+
+% ---------------------------------------------------------------- chapters (arabic numbers)
+\cleardoublepage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\input{chapters/ch1_introduction}
+\input{chapters/ch2_design}
+\input{chapters/ch3_implementation}
+\input{chapters/ch4_conclusion}
+
+% ---------------------------------------------------------------- references and appendix
+\input{chapters/references}
+\input{chapters/appendix}
+
+\end{document}

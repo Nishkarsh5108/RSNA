@@ -50,6 +50,13 @@ forward pass and decomposed into two maps:
 The UI reports the largest gap between Σ contributions + bias and the forward's logit. In fp32 the gap is 5e-7; in
 fp16 it is at most 0.05 logits.
 
+**Lesion** overlay: the classifier's auxiliary lesion head is a 1×1 convolution, trained only during training on
+per-slice lesion boxes. It gives each cell's probability of being covered by a lesion of the finding. It reads the
+same captured features but does not feed the probability, so it is an independent localisation.
+
+The evidence map shows what drove the score, and that need not be the most visible lesion. For each map the finding
+panel lists the series' top slices, and selecting a finding jumps to the peak of the map currently shown.
+
 **Hardware**: RTX 4050 Laptop, 6 GB. Weights stay fp32 and inference runs under fp16 autocast, as on the Kaggle T4.
 Peak VRAM is 1.2 GB for a typical study and 3.1 GB for a 160-slice 640×1280 series. A study takes 4–11 s after the
 first run warms up. No quantization is needed, so there is no accuracy cost.

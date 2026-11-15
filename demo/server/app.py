@@ -247,11 +247,13 @@ def explain(sid: str, uid: str):
     r = RESULTS.get(sid, {}).get("arrays", {}).get(uid)
     if r is None:
         raise HTTPException(404, "run inference first")
-    arrs = [r[k].astype(np.float32) for k in ("share", "contrib", "boxWeight")]
-    return packed(dict(shape=list(arrs[0].shape), dtype="float32", arrays=["share", "contrib", "boxWeight"],
+    names = [k for k in ("share", "contrib", "boxWeight", "lesion") if k in r]
+    arrs = [r[k].astype(np.float32) for k in names]
+    return packed(dict(shape=list(arrs[0].shape), dtype="float32", arrays=names,
                        units=dict(share="fraction of the label's pooled feature (sums to 1 over the series)",
                                   contrib="logit units, averaged over the models (sums to the mean logit minus bias)",
-                                  boxWeight="share of the ROI box before attention")), *arrs)
+                                  boxWeight="share of the ROI box before attention",
+                                  lesion="lesion head: probability that the cell is covered by a lesion of the finding (not used for the probability)")), *arrs)
 
 
 @app.delete("/api/studies/{sid}")

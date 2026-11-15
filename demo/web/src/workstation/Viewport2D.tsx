@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FINDINGS } from "../lib/findings";
 import { edgeLetters, sliceLocation, toPatient, toUnit, type Geo } from "./geometry";
-import { boxSlices, pipelineView, setPoint, setSlice, setState, sliceProfile, useStore, type Vol } from "./store";
+import { boxSlices, overlayMap, overlayProfile, pipelineView, setPoint, setSlice, setState, useStore, type Vol } from "./store";
 
 type Plane = "Sagittal" | "Coronal" | "Axial";
 
@@ -90,7 +90,7 @@ export default function Viewport2D({ plane }: { plane: Plane }) {
     return sliceImage(vol, Math.min(k, vol.d - 1), xf.wc, xf.ww);
   }, [vol, input, modelView, ck, k, xf.wc, xf.ww]);
 
-  const profile = useMemo(() => (ex && finding !== null ? sliceProfile(ex, finding) : null), [ex, finding]);
+  const profile = useMemo(() => (ex && finding !== null ? overlayProfile(ex, finding, overlay === "box" ? "evidence" : overlay) : null), [ex, finding, overlay]);
 
   // layout: the image rectangle in canvas pixels (CSS px)
   const layout = useMemo(() => {
@@ -176,22 +176,31 @@ export default function Viewport2D({ plane }: { plane: Plane }) {
     if (final && ex && res?.crop && finding !== null && ck >= 0 && overlay !== "box") {
       const cells = ex.h * ex.w;
       const base = (ck * ex.k + finding) * cells;
-      const src = overlay === "evidence" ? ex.contrib : ex.share;
-      let max = 1e-9;
-      for (let s2 = 0; s2 < ex.d; s2++) for (let i = 0; i < cells; i++) max = Math.max(max, src[(s2 * ex.k + finding) * cells + i]);
+      const src = overlayMap(ex, overlay) ?? ex.contrib;
+      // evidence / attention: relative to this series' maximum; lesion head: its own probability (0..1)
+      let max = overlay === "lesion" ? 1 : 1e-9;
+      if (overlay !== "lesion") for (let s2 = 0; s2 < ex.d; s2++) for (let i = 0; i < cells; i++) max = Math.max(max, src[(s2 * ex.k + finding) * cells + i]);
       const [cx0, cy0, cx1, cy1] = res.crop;
       for (let r = 0; r < ex.h; r++) {
         for (let q = 0; q < ex.w; q++) {
           const val = src[base + r * ex.w + q];
           const a = Math.max(0, val / max);
-          if (a < 0.02) continue;
+          if (a < (overlay === "lesion" ? 0.06 : 0.02)) continue;
           const u0 = cx0 + (q / ex.w) * (cx1 - cx0),
             u1 = cx0 + ((q + 1) / ex.w) * (cx1 - cx0);
           const v0 = cy0 + (r / ex.h) * (cy1 - cy0),
             v1 = cy0 + ((r + 1) / ex.h) * (cy1 - cy0);
           const [x, y, w, h] = rect(u0, v0, u1, v1);
-          ctx.fillStyle = overlay === "evidence" ? `rgba(245,183,0,${(0.62 * Math.pow(a, 0.8)).toFixed(3)})` : `rgba(242,241,236,${(0.5 * a).toFixed(3)})`;
-          ctx.fillRect(x + 1, y + 1, w - 2, h - 2);
+          if (overlay === "lesion") {
+            // lesion head: outlined cells, opacity = predicted lesion coverage
+            ctx.fillStyle = `rgba(245,183,0,${(0.28 * a).toFixed(3)})`;
+            ctx.fillRect(x + 1, y + 1, w - 2, h - 2);
+            ctx.strokeStyle = `rgba(245,183,0,${Math.min(1, 0.25 + 1.4 * a).toFixed(3)})`;
+            ctx.strokeRect(Math.round(x) + 1.5, Math.round(y) + 1.5, Math.round(w) - 3, Math.round(h) - 3);
+          } else {
+            ctx.fillStyle = overlay === "evidence" ? `rgba(245,183,0,${(0.62 * Math.pow(a, 0.8)).toFixed(3)})` : `rgba(242,241,236,${(0.5 * a).toFixed(3)})`;
+            ctx.fillRect(x + 1, y + 1, w - 2, h - 2);
+          }
         }
       }
       // the 8 x 8 lattice, hairline
@@ -369,7 +378,7 @@ export default function Viewport2D({ plane }: { plane: Plane }) {
             depth={geo.depth}
             k={k}
             zr={zr}
-            profile={profile?.pos ?? null}
+            profile={profile ?? null}
             slicePos={res?.slicePos ?? null}
             onSet={(i) => uid && setSlice(uid, i)}
           />

@@ -1,0 +1,123 @@
+% ======================================================================
+% APPENDIX
+% ======================================================================
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{APPENDIX}
+\chapter*{APPENDIX}
+\setcounter{section}{0}
+\renewcommand{\thesection}{\Alph{section}}
+\counterwithin*{table}{section}
+\renewcommand{\theHsection}{app.\Alph{section}}
+\renewcommand{\theHtable}{app.\Alph{section}.\arabic{table}}
+\renewcommand{\thetable}{\Alph{section}.\arabic{table}}
+\setcounter{table}{0}
+
+\section{Project Team and Supervision}
+
+\begin{table}[H]
+\centering\footnotesize\setstretch{1}
+\caption{Project team (all students of B.Tech Electronics \& Communication Engineering, Section B)}
+\label{tab:team}
+\begin{tabular}{L{4.2cm}L{3.0cm}L{6.2cm}}
+\toprule
+Name & University roll no. & E-mail \\
+\midrule
+Nishkarsh Singhal & 24294917099 & Nishkarsh.5108@ece.du.ac.in \\
+Anuj Chaubey & 24294917055 & anujchaubey3669@ece.du.ac.in \\
+Vardhan Harsh Nigam & 24294917014 & Vardhanharshnigam@ece.du.ac.in \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The project was supervised by Dr.\ Varun Saxena, Associate Professor, Department of Electronics \& Communication Engineering (varunsaxena@ece.du.ac.in), with Dr.\ Sangeeta Yadav, Assistant Professor, Department of Computer Science \& Engineering (Sangeeta@fot.du.ac.in), as co-supervisor.
+
+\section{Complete Submission History}
+
+Table~\ref{tab:allsubs} lists every submission made from the team's Kaggle account, read from the Kaggle submission history through the command-line client. The reference number is Kaggle's own identifier. Scores are macro AUC on the public and private leaderboards. Submissions~1--16 were made during the competition and 17--22 after it closed.
+
+\begin{longtable}{C{0.6cm}C{1.5cm}L{2.2cm}L{6.9cm}C{1.1cm}C{1.1cm}}
+\caption{All submissions from the team's account, in the order made}\label{tab:allsubs}\\
+\toprule
+No. & Reference & Stage & Content & Public & Private \\
+\midrule
+\endfirsthead
+\toprule
+No. & Reference & Stage & Content & Public & Private \\
+\midrule
+\endhead
+1 & 55906095 & Stage 1 & v1: frozen EfficientNet-B0 on a third-party cache & 0.500 & 0.498 \\
+2 & 55966953 & Stage 1 & v2: frozen EfficientNet-B0 on our own DICOM pipeline & 0.775 & 0.755 \\
+3 & 57336780 & Stage 3 & 2.5D MIL ConvNeXt-T, 3 seeds (F1--F3), shift TTA & 0.927 & 0.916 \\
+4 & 57365203 & Stage 3 & F1--F3 + high-resolution model E9 & 0.928 & 0.915 \\
+5 & 57384567 & Stage 4 & A-strict: public CoAtNet (OAI) + public S6 & 0.954 & 0.937 \\
+6 & 57384570 & Stage 4 & A-strict+: public 0.958 notebook with R6 replaced by S6 & 0.954 & 0.937 \\
+7 & 57406523 & Stage 4 & final-strict: A-strict + public s6fall (fastMRI-free) & 0.956 & 0.940 \\
+8 & 57444580 & Stage 4 & final-max v1: public CoAtNet + R6 notebook + s6fall & 0.958 & 0.943 \\
+9 & 57460890 & Stage 4 & final-max v2: s6fall scored inside the R6 pass & 0.958 & 0.943 \\
+10 & 57480525 & Stage 4 & final-max v3: + our fine-tuned s6ft\_v2, s6ft\_v1 & 0.958 & 0.943 \\
+11 & 57480912 & Stage 4 & final-strict-v2: + our fine-tunes & 0.956 & 0.940 \\
+12 & 57512015 & Stage 4 (last day) & final-max v4: specialist routing (no score returned) & -- & -- \\
+13 & 57519582 & Stage 4 (last day) & final-strict-v3: specialist routing fitted on gold-58 & 0.948 & 0.935 \\
+14 & 57521956 & Stage 4 (last day) & final-max (kernel v8): stopped by its 8.3 h deadline & 0.891 & 0.894 \\
+15 & 57531417 & Stage 4 (last day) & final-max (kernel v9): same blend, later version & 0.848 & 0.850 \\
+16 & 57534028 & Stage 4 (last day) & final-max (kernel v10): stride-2 master blend & 0.866 & 0.870 \\
+17 & 58350230 & Stage 5 & box-pooling, fused labels, fold 0 (A2) & 0.968 & 0.958 \\
+18 & 58350257 & Stage 5 & box-pooling, fused labels, folds 0+1 (A2 + C1) & 0.968 & 0.958 \\
+19 & 58369148 & Stage 5 & A1 with per-finding attention sharpening & 0.967 & 0.957 \\
+20 & 58369192 & Stage 5 & mean of A0, A1, A2 & 0.968 & 0.958 \\
+21 & 58369222 & Stage 5 & A1 with attention sharpening s = 2 & 0.967 & 0.956 \\
+22 & 58369269 & Stage 5 & mean of A0, A1, A2, C1 & 0.968 & 0.958 \\
+\bottomrule
+\end{longtable}
+
+\section{Training Recipe of the Box-Pooling Models}
+
+\begin{table}[H]
+\centering\footnotesize\setstretch{1}
+\caption[Training settings of the box-pooling models]{Settings used for the six box-pooling training runs of Stage 5 (published recipe; labels, folds and switches set by our notebook builder)}
+\label{tab:bprecipe}
+\begin{tabularx}{\textwidth}{L{4.0cm} Y}
+\toprule
+Item & Setting \\
+\midrule
+Encoder & ConvNeXt-Tiny (ImageNet-12k pretrained, ImageNet-1k fine-tuned), drop-path 0.1; 31.0~M parameters with all heads \\
+Input & every slice resampled to a 140~mm field at 384 pixels (0.365~mm per pixel); 112~mm crop at 256 pixels; at most 64 slices per series; intensity window at the 0.5 and 99.5 percentiles \\
+Pooling & 8 $\times$ 8 feature cells per slice; per-finding three-dimensional box from the detector; in-box attention initialised to zero \\
+Loss & binary cross-entropy + 1.0 $\times$ lesion-coverage loss + 0.3 $\times$ report-embedding loss (Equation~\ref{eq:bploss}) \\
+Labels & first-place, seventh-place or fused image-read labels; gold studies never trained on \\
+Optimiser & AdamW, learning rate $5\times10^{-5}$, weight decay 0.02, 0.5 epoch warm-up, gradient clipping at 1.0 \\
+Batch & 8 series per update, as 2 series per micro-batch on each of 2 GPUs with gradient accumulation \\
+Precision and EMA & float16 with gradient scaling; EMA decay 0.999; the EMA weights are evaluated and used \\
+Augmentation & scale 0.9--1.1, shift $\pm8\%$, rotation $\pm10^\circ$ \\
+Folds & the published 5-fold split of the 4,349 non-gold studies (seed 42); runs on folds 0--3 with seed 3; 8 epochs \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Organisation of the Source Code}
+
+\begin{table}[H]
+\centering\footnotesize\setstretch{1}
+\caption{Main source folders and scripts of the project}
+\label{tab:code}
+\begin{tabularx}{\textwidth}{L{5.0cm} Y}
+\toprule
+Location & Purpose \\
+\midrule
+\texttt{src/model/}, \texttt{src/label\_generation/} & Stage 1: first labeller, consensus aggregation and frozen-feature models \\
+\texttt{src/audit/} & Stage 2: DICOM header inventory, EDA, laterality table, decoder self-test \\
+\texttt{src/labeling/} & Stage 2: forced-choice LLM labeller, rule extractor, label validation and downstream test \\
+\texttt{src/imaging/} & Stage 3: study index, decoding, data loader, 2.5D model, training, prediction, run queue and tests \\
+\texttt{notebooks/} & generated Kaggle notebooks for training, inference and the competition endgame, with their builders and local tests \\
+\texttt{src/emergency/} & Stage 4: local runs of public models on gold-58, blend evaluation, single-pass rewrite and fine-tuning \\
+\texttt{src/postcomp/} & Stage 5: training and inference notebook builders, inference script, scoring, sharpening sweep, series weighting and hand-over scripts \\
+\texttt{demo/server/}, \texttt{demo/web/} & Stage 6: workstation server, engine, fidelity test and browser application \\
+\texttt{reports/SEC project report/} & this report: \LaTeX\ source, figures, aggregate data tables and the scripts that produce them \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Reproducing the Figures of this Report}
+
+The data figures were produced in three steps by scripts kept in the \texttt{scripts} folder of this report. \texttt{collect\_results.py} reads the project's run outputs and writes only aggregate tables (counts, rates, AUCs and confidence intervals) to the \texttt{data} folder; it writes no per-study rows, report text or images. \texttt{prepare\_submissions.py} converts the Kaggle submission export into the table of Appendix~B without dates. \texttt{make\_figures.py} draws Figures~\ref{fig:dataset}, \ref{fig:labels}, \ref{fig:curves}, \ref{fig:ablation}, \ref{fig:attention}, \ref{fig:gold}, \ref{fig:leaderboard}, \ref{fig:labelswap} and \ref{fig:sharpen} from those tables. The workstation screenshots were captured by \texttt{capture\_workstation.mjs} through a headless browser and cut into the report's panels by \texttt{prepare\_screenshots.py}. All bootstrap intervals use 2,000 resamples of studies, except the sharpening sweep, which uses 1,000.

@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import type { PipelineEvent } from "../lib/api";
 import { FINDINGS } from "../lib/findings";
 import {
-  editSeries, loadSample, pipelineView, play, runInference, selectFinding, setCursor, setState, stopPlay, uploadFiles, useStore,
+  editSeries, loadSample, peakSlices, pipelineView, play, runInference, selectFinding, setCursor, setOverlay, setSlice, setState, stopPlay, uploadFiles, useStore,
 } from "./store";
 
 const PLANE = { Sagittal: "SAG", Coronal: "COR", Axial: "AX" } as const;
@@ -301,9 +301,22 @@ export function FindingsPanel() {
       </div>
       {sum && (
         <div className="seg">
-          {(["evidence", "attention", "box"] as const).map((o) => (
-            <button key={o} className={`tool ${overlay === o ? "on" : ""}`} onClick={() => setState({ overlay: o })}>
-              {o === "evidence" ? "Evidence" : o === "attention" ? "Attention" : "Boxes"}
+          {(["evidence", "attention", "lesion", "box"] as const).map((o) => (
+            <button
+              key={o}
+              className={`tool ${overlay === o ? "on" : ""}`}
+              onClick={() => setOverlay(o)}
+              title={
+                o === "evidence"
+                  ? "What drove the score: each cell's exact contribution to the logit"
+                  : o === "attention"
+                    ? "Where the model pooled: each cell's share of the pooled feature"
+                    : o === "lesion"
+                      ? "Where the network's lesion head places a lesion (trained on per-slice lesion boxes; not used for the score)"
+                      : "The detector's ROI box and the classifier's crop"
+              }
+            >
+              {o === "evidence" ? "Evidence" : o === "attention" ? "Attention" : o === "lesion" ? "Lesion" : "Boxes"}
             </button>
           ))}
           <span className="tool-sep" />
@@ -339,9 +352,21 @@ function FindingDetail({ i }: { i: number }) {
   const m = useStore((s) => s.manifest)!;
   const status = useStore((s) => s.status);
   const overlay = useStore((s) => s.overlay);
+  const active = useStore((s) => s.active);
+  const explain = useStore((s) => s.explain);
   const f = FINDINGS[i];
   const models = status?.models?.classifiers ?? [];
   const series = m.series.filter((s) => sum.series[s.uid]?.probs);
+  const show = (uid: string) => {
+    const plane = m.series.find((x) => x.uid === uid)!.plane;
+    setState((st) => ({ active: uid, planeSeries: { ...st.planeSeries, [plane]: uid } }));
+  };
+  // where the shown map is concentrated in the active series: its top slices, clickable
+  const act = active ? m.series.find((x) => x.uid === active) : undefined;
+  const ex = active ? explain[active] : undefined;
+  const r = active ? sum.series[active] : undefined;
+  const mode = overlay === "box" ? "evidence" : overlay;
+  const peaks = ex && r?.slicePos ? peakSlices(ex, i, mode, 4) : [];
   return (
     <div className="detail">
       <div className="detail-h">
@@ -371,7 +396,7 @@ function FindingDetail({ i }: { i: number }) {
         {series.map((s) => {
           const p = sum.series[s.uid].probs![i];
           return (
-            <button key={s.uid} className="mini-row as-btn" onClick={() => setState({ active: s.uid })}>
+            <button key={s.uid} className={`mini-row as-btn ${active === s.uid ? "on" : ""}`} onClick={() => show(s.uid)}>
               <span className="mono mr-k">{PLANE[s.plane]}</span>
               <span className="mini-bar">
                 <span style={{ width: `${p * 100}%` }} />
@@ -382,12 +407,34 @@ function FindingDetail({ i }: { i: number }) {
           );
         })}
       </div>
+      {act && peaks.length > 0 && (
+        <div className="detail-block">
+          <div className="label">
+            {mode === "evidence" ? "evidence" : mode === "attention" ? "pooling weight" : "lesion head"} by slice · {PLANE[act.plane]} {(act.description || "").slice(0, 16)}
+          </div>
+          {peaks.map((p) => {
+            const native = Math.round(r!.slicePos![p.k]);
+            return (
+              <button key={p.k} className="mini-row as-btn" onClick={() => (show(act.uid), setSlice(act.uid, native))}>
+                <span className="mono mr-k">Im {native + 1}</span>
+                <span className="mini-bar">
+                  <span style={{ width: `${p.frac * 100}%` }} />
+                </span>
+                <span className="num mr-v">{Math.round(p.frac * 100)}%</span>
+                <span className="mr-note label">of {act.slices}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
       <p className="detail-note body-s">
         {overlay === "evidence"
-          ? "Yellow cells: each feature cell's exact contribution to this finding's logit (pooling share × head · feature), averaged over the models. Only cells inside the finding's ROI box can contribute; brighter = more evidence for the finding."
+          ? "Yellow cells: each feature cell's exact contribution to this finding's logit (pooling share × head · feature), averaged over the models. It shows what drove the score, which need not be the most visible lesion: the model reads 14 mm cells inside the finding's box and can lean on anatomy around a lesion. Compare with Lesion."
           : overlay === "attention"
             ? "White cells: where the model pooled — each cell's share of the finding's pooled feature (ROI box × learned in-box attention). It shows where the model looked, not what it found there."
-            : "Boxes: the detector's 3D box per finding (yellow) and the 112 mm window the classifier reads (dashed)."}
+            : overlay === "lesion"
+              ? "Outlined cells: the network's lesion head — trained only during training, on per-slice lesion boxes drawn for each finding — gives the probability that each 14 mm cell is covered by a lesion. It reads the same features but does not feed the probability above, so it is an independent localisation."
+              : "Boxes: the detector's 3D box per finding (yellow) and the 112 mm window the classifier reads (dashed)."}
       </p>
     </div>
   );
