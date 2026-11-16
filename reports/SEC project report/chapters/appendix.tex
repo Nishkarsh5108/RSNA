@@ -10,6 +10,10 @@
 \counterwithin*{table}{section}
 \renewcommand{\theHsection}{app.\Alph{section}}
 \renewcommand{\theHtable}{app.\Alph{section}.\arabic{table}}
+\counterwithin*{figure}{section}
+\renewcommand{\thefigure}{\Alph{section}.\arabic{figure}}
+\renewcommand{\theHfigure}{app.\Alph{section}.\arabic{figure}}
+\setcounter{figure}{0}
 \renewcommand{\thetable}{\Alph{section}.\arabic{table}}
 \setcounter{table}{0}
 
@@ -121,3 +125,15 @@ Location & Purpose \\
 \section{Reproducing the Figures of this Report}
 
 The data figures were produced in three steps by scripts kept in the \texttt{scripts} folder of this report. \texttt{collect\_results.py} reads the project's run outputs and writes only aggregate tables (counts, rates, AUCs and confidence intervals) to the \texttt{data} folder; it writes no per-study rows, report text or images. \texttt{prepare\_submissions.py} converts the Kaggle submission export into the table of Appendix~B without dates. \texttt{make\_figures.py} draws Figures~\ref{fig:dataset}, \ref{fig:labels}, \ref{fig:curves}, \ref{fig:ablation}, \ref{fig:attention}, \ref{fig:gold}, \ref{fig:leaderboard}, \ref{fig:labelswap} and \ref{fig:sharpen} from those tables. The workstation screenshots were captured by \texttt{capture\_workstation.mjs} through a headless browser and cut into the report's panels by \texttt{prepare\_screenshots.py}. All bootstrap intervals use 2,000 resamples of studies, except the sharpening sweep, which uses 1,000.
+
+\section{Competition Certificate}
+\label{app:certificate}
+
+Kaggle awarded the team's final result in the RSNA Knee Abnormality Detection challenge a bronze medal, for 490th place among 6,299 teams on the private leaderboard (Figure~\ref{fig:certificate}). The certificate is issued to the Kaggle account under which the team's submissions were made.
+
+\begin{figure}[H]
+\centering\setstretch{1}
+\includegraphics[width=0.92\textwidth]{kaggle_certificate.png}
+\caption[Kaggle certificate of achievement]{Kaggle certificate of achievement for the RSNA Knee Abnormality Detection challenge: 490th of 6,299 teams, bronze medal}
+\label{fig:certificate}
+\end{figure}

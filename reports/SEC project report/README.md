@@ -40,4 +40,3 @@ python scripts/order_references.py         # after a compile: references in orde
 
 - The academic session on the title page (written as 2026–2027).
 - The project period in the declaration (written as August 2026 to November 2026, from the first code commit and first Kaggle submission to the present).
-- Rank 490 on the private leaderboard is taken from the team's own records at the close of the competition; the Kaggle API exposes only the public leaderboard, so it could not be re-read automatically.
