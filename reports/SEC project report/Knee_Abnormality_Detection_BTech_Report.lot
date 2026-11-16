@@ -1,0 +1,23 @@
+\babel@toc {british}{}\relax 
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {1.1}{\ignorespaces The twelve findings and their gold-58 positives}}{2}{table.caption.7}%
+\contentsline {table}{\numberline {1.2}{\ignorespaces Summary of the training data, measured over all files in our audit}}{4}{table.caption.11}%
+\contentsline {table}{\numberline {1.3}{\ignorespaces Functional (F) and non-functional (N) requirements of the system}}{8}{table.caption.19}%
+\contentsline {table}{\numberline {1.4}{\ignorespaces Summary of the feasibility study}}{10}{table.caption.25}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Hardware and software used in the project}}{22}{table.caption.45}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Defects found in the audit of the first pipeline}}{28}{table.caption.61}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces Downstream test of label sets with frozen features}}{31}{table.caption.66}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Training recipe of the 2.5D multiple-instance model}}{32}{table.caption.69}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Public models used in the competition endgame}}{36}{table.caption.80}%
+\contentsline {table}{\numberline {3.5}{\ignorespaces Main submissions of the competition endgame}}{38}{table.caption.87}%
+\contentsline {table}{\numberline {3.6}{\ignorespaces Box-pooling training runs}}{41}{table.caption.95}%
+\contentsline {table}{\numberline {3.7}{\ignorespaces Late submissions of the box-pooling models}}{43}{table.caption.98}%
+\contentsline {table}{\numberline {3.8}{\ignorespaces Tests and verification checks with their outcomes}}{47}{table.caption.103}%
+\contentsline {table}{\numberline {3.9}{\ignorespaces Summary of the main results (macro AUC)}}{49}{table.caption.108}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {A.1}{\ignorespaces Project team (all students of B.Tech Electronics \& Communication Engineering, Section B)}}{60}{table.caption.113}%
+\contentsline {table}{\numberline {B.1}{\ignorespaces All submissions from the team's account, in the order made}}{60}{table.app.B.1}%
+\contentsline {table}{\numberline {C.1}{\ignorespaces Training settings of the box-pooling models}}{61}{table.caption.114}%
+\contentsline {table}{\numberline {D.1}{\ignorespaces Main source folders and scripts of the project}}{62}{table.caption.115}%

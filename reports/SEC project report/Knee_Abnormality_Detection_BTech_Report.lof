@@ -1,0 +1,23 @@
+\babel@toc {british}{}\relax 
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Composition of the training studies}}{5}{figure.caption.12}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces System context}}{11}{figure.caption.26}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Development stages of the project}}{14}{figure.caption.27}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Forced-choice labelling pipeline}}{16}{figure.caption.32}%
+\contentsline {figure}{\numberline {2.4}{\ignorespaces The 2.5D multiple-instance network}}{18}{figure.caption.37}%
+\contentsline {figure}{\numberline {2.5}{\ignorespaces Box-pooling pipeline used after the competition}}{20}{figure.caption.40}%
+\contentsline {figure}{\numberline {2.6}{\ignorespaces Architecture of the local workstation}}{22}{figure.caption.44}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Label prevalence and agreement with gold-58}}{29}{figure.caption.62}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Validation curves of the 2.5D and box-pooling models}}{33}{figure.caption.71}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Single-change ablations of the 2.5D model}}{33}{figure.caption.73}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Attention of the 2.5D model by plane and position}}{34}{figure.caption.75}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Per-finding AUC on gold-58}}{35}{figure.caption.77}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Leaderboard scores of all submissions}}{38}{figure.caption.88}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Label-swap experiment on gold-58}}{40}{figure.caption.92}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Attention sharpening at inference}}{44}{figure.caption.100}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces The local workstation after inference}}{45}{figure.caption.101}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Workstation panels}}{46}{figure.caption.102}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {F.1}{\ignorespaces Kaggle certificate of achievement}}{63}{figure.caption.116}%
